@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Tank {
 
 	protected int speed = 10;
@@ -6,9 +8,17 @@ public class Tank {
 	private  Direction direction;
 	ActionField af;
 	BattleField bf;
-	
+	String quadrant = randomChoiseQuadrant();
+
 	public Tank (ActionField af, BattleField bf) {
 		this(af, bf, 192, 512, Direction.UP);
+	}
+
+	public Tank(ActionField af, BattleField bf, Direction direction) {
+		this.af = af;
+		this.bf = bf;
+		coordTanks(af, quadrant);
+		this.direction = direction;
 	}
 
 	public Tank(ActionField af, BattleField bf, int x, int y, Direction direction) {
@@ -18,6 +28,31 @@ public class Tank {
 		this.y = y;
 		this.direction = direction;
 	}
+
+	public String randomChoiseQuadrant () {
+		Random r = new Random();
+		String quadrant1 = "9_6";
+		String quadrant2 = "8_8";
+		String quadrant3 = "5_1";
+		int  i;
+		i=r.nextInt(3);
+		if (i==1) {
+			return quadrant1;
+		}else if (i==2) {
+			return quadrant3;
+
+		}else {
+			return quadrant2;
+		}
+
+	}
+	private void coordTanks(ActionField af, String quadrant) {
+		String coord=af.getQuadrantXY(Integer.parseInt(quadrant.substring(0,1)), Integer.parseInt(quadrant.substring(2)));
+		int separator = coord.indexOf("_");
+		y = Integer.parseInt(coord.substring(0, separator));
+		x = Integer.parseInt(coord.substring(separator + 1));
+	}
+
 
 	public int getSpeed() {
 		return speed;

@@ -7,28 +7,18 @@ public class ActionField extends JPanel {
 	final boolean COLORDED_MODE = true;
 	BattleField battleField = new BattleField();
 	Bullet bullet = new Bullet(-100, -100, Direction.UP);
-	
-	BT7 bt7 = new BT7(this, battleField, 320, 512, Direction.UP);
+		BT7 bt7 = new BT7(this, battleField, 320, 512, Direction.UP);
 	Tank tank = new Tank (this,battleField);
-	Tank tank1 = new Tank (this, battleField, 256, 512, Direction.UP);
+	Tank agressor = new Tank (this, battleField, Direction.UP);
 	
 	public void runTheGame() throws Exception {
 		
-//		tank.moveToQuadrant(1, 9);
-//		bt7.moveToQuadrant(9, 9);
-//		tank.moveToQuadrant(1,1);
+
 		bt7.moveRandom();
 //		bt7.turn(Direction.UP);
 		bt7.fire();
 		bt7.move();
-//		bt7.turn(Direction.LEFT);
-//		bt7.fire();
-//		bt7.move();
-//		tank1.turn(Direction.RIGHT);
-		tank.fire();
-//		tank.move();
-//		tank.turn(Direction.UP);
-//		tank.fire();
+
 	}
 	
 	private boolean processInterception() {
@@ -259,8 +249,23 @@ public class ActionField extends JPanel {
 
 		g.setColor(new Color(255, 255, 0));
 		g.fillRect(bullet.getX(), bullet.getY(), 14, 14);
-		
-		
+
+		g.setColor(new Color(255, 0, 0));
+		g.fillRect(agressor.getX(), agressor.getY(), 64, 64);
+
+		g.setColor(new Color(0, 255, 0));
+		if (agressor.getDirection() == Direction.UP) {
+			g.fillRect(agressor.getX() + 20, agressor.getY(), 24, 34);
+		} else if (agressor.getDirection() == Direction.DOWN) {
+			g.fillRect(agressor.getX() + 20, agressor.getY() + 30, 24, 34);
+		} else if (agressor.getDirection() == Direction.LEFT) {
+			g.fillRect(agressor.getX(), agressor.getY() + 20, 34, 24);
+		} else {
+			g.fillRect(agressor.getX() + 30, agressor.getY() + 20, 34, 24);
+		}
+
+		g.setColor(new Color(255, 255, 0));
+		g.fillRect(bullet.getX(), bullet.getY(), 14, 14);
 	}
 
 }
