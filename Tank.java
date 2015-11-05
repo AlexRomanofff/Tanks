@@ -114,9 +114,9 @@ public class Tank {
 			}
 			turn(direction);
 			
-			if (af.checkRange(direction)) {
+			if (af.checkRange(this,direction)) {
 			} else {
-				if (af.checkNextQuadrant().trim().isEmpty()) {
+				if (af.checkNextQuadrant(this).trim().isEmpty()) {
 					move();
 				}
 			}
@@ -141,10 +141,10 @@ public class Tank {
 			direction = Direction.LEFT;
 		}
 		turn(direction);
+		fire();
+      		while ( x!=getX()) {
 
-		while (x != getX()) {
-
-			if (af.checkNextQuadrant().equals("B")) {
+			if (!af.checkNextQuadrant(this).equals(" ")) {
 				fire();
 			}
 			move();
@@ -155,10 +155,10 @@ public class Tank {
 		else if (y < getY()) { direction = Direction.UP;
 		}
 		turn(direction);
-
+		fire();
 		while (y != getY()) {
 
-			if (af.checkNextQuadrant().equals("B")) {
+			if (!af.checkNextQuadrant(this).equals(" ")) {
 				fire();
 			}
 			move();
@@ -167,8 +167,8 @@ public class Tank {
 }
 
 	public void destroy() {
-		x=-100;
-		y=-100;
+		x=-200;
+		y=-200;
 	}
 	
 	public void clean() throws Exception {
@@ -190,4 +190,5 @@ public class Tank {
 			}
 		}
 	}
+
 }

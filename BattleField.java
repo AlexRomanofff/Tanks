@@ -50,4 +50,6 @@ public class BattleField {
 		return battleField.length;
 	}
 
+
+
 }
