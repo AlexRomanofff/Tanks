@@ -33,7 +33,7 @@ public class Tank {
 		Random r = new Random();
 		String quadrant1 = "9_6";
 		String quadrant2 = "8_8";
-		String quadrant3 = "5_1";
+		String quadrant3 = "4_4";
 		int  i;
 		i=r.nextInt(3);
 		if (i==1) {

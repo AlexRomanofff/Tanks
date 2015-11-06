@@ -8,7 +8,7 @@ public class ActionField extends JPanel {
 	BattleField battleField;
 	Bullet bullet;
 
-	Tank agressor;
+	Tiger agressor;
     Tank defender;
 
 	public ActionField () throws Exception {
@@ -16,7 +16,7 @@ public class ActionField extends JPanel {
 		battleField = new BattleField();
 		bullet = new Bullet(-100, -100, Direction.UP);
 		defender = new Tank(this, battleField);
-		agressor = new Tank(this, battleField, Direction.UP);
+		agressor = new Tiger(this, battleField, Direction.UP);
 
 
 		JFrame frame = new JFrame("BATTLE FIELD, DAY 2");
@@ -31,14 +31,20 @@ public class ActionField extends JPanel {
 	public void runTheGame() throws Exception {
 
 //		defender.moveToQuadrant(1,1);
-		defender.moveToQuadrant(8,8);
+		defender.fire();
+		defender.fire();
+		defender.fire();
+		defender.fire();
+		defender.fire();
+		defender.fire();
+
 
 
 
 
 	}
 	
-	private int processInterception() throws Exception {
+	private boolean processInterception() throws Exception {
 
 		String quadrantBullet = getQuadrant(bullet.getX(), bullet.getY());
 		int separator = quadrantBullet.indexOf("_");
@@ -48,15 +54,21 @@ public class ActionField extends JPanel {
 
 			if (battleField.scanQuadrant(y, x).equals("B")) {
 				battleField.updateQuadrant(y, x, " ");
-				return 1;}
+
+				return true;}
 
 			String quadrantAgressor = getQuadrant(agressor.getX(),agressor.getY());
 			if(checkInterceptionInQuadrant(quadrantBullet, quadrantAgressor)) {
-			agressor= new Tank(this, battleField, Direction.UP);
-				return 2;
+
+				agressor.destroy();
+
+				return true;
 			}
 
-		}return  0;
+		}return  false;
+
+
+
 	}
 
 	private boolean checkInterceptionInQuadrant (String quadrantBullet, String quadrantTank) {
@@ -86,18 +98,10 @@ public class ActionField extends JPanel {
 
 			moveBullet(bullet, step);
 
-			if (processInterception() == 1) {
+			if (processInterception()) {
 				bullet.destroy();
 				repaint();
 				Thread.sleep(bullet.getSpeed());
-
-			} else if (processInterception() == 2) {
-				bullet.destroy();
-				agressor.destroy();
-				repaint();
-				Thread.sleep(3000);
-				agressor = new Tank(this, battleField, Direction.UP);
-
 
 			}
 		}
