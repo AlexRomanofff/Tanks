@@ -1,7 +1,10 @@
+import java.awt.*;
+
 public class BattleField {
 	
 	private int BF_WIDTH = 576;
 	private int BF_HEIGHT = 576;
+
 	
 	String[][] battleField = { { "B", "B", "B", "B", " ", "B", "B", "B", "B" },
 			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
@@ -50,6 +53,8 @@ public class BattleField {
 		return battleField.length;
 	}
 
+    public void draw (Graphics g) {
 
+	}
 
 }

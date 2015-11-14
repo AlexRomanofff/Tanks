@@ -1,8 +1,9 @@
+import java.awt.*;
 import java.util.Random;
 
-public class Tank {
+public abstract class AbstraktTank implements Destroyable, Drawable {
 
-	protected int speed = 10;
+	private int speed = 10;
 	private int x;
 	private int y;
 	private  Direction direction;
@@ -10,18 +11,18 @@ public class Tank {
 	BattleField bf;
 	String quadrant = randomChoiseQuadrant();
 
-	public Tank (ActionField af, BattleField bf) {
+	public AbstraktTank(ActionField af, BattleField bf) {
 		this(af, bf, 192, 512, Direction.UP);
 	}
 
-	public Tank(ActionField af, BattleField bf, Direction direction) {
+	public AbstraktTank(ActionField af, BattleField bf, Direction direction) {
 		this.af = af;
 		this.bf = bf;
 		coordTanks(af, quadrant);
 		this.direction = direction;
 	}
 
-	public Tank(ActionField af, BattleField bf, int x, int y, Direction direction) {
+	public AbstraktTank(ActionField af, BattleField bf, int x, int y, Direction direction) {
 		this.af = af;
 		this.bf = bf;
 		this.x = x;
@@ -64,6 +65,10 @@ public class Tank {
 
 	public int getY() {
 		return y;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
 	}
 
 	public Direction getDirection() {
@@ -167,8 +172,8 @@ public class Tank {
 }
 
 	public void destroy() {
-		x=-200;
-		y=-200;
+		x=-100;
+		y=-100;
 	}
 	
 	public void clean() throws Exception {
@@ -190,5 +195,22 @@ public class Tank {
 			}
 		}
 	}
+
+	public void draw (Graphics g) {
+		g.setColor(new Color(255, 0, 0));
+		g.fillRect(this.getX(), this.getY(), 64, 64);
+
+		g.setColor(new Color(0, 255, 0));
+		if (this.getDirection() == Direction.UP) {
+			g.fillRect(this.getX() + 20, this.getY(), 24, 34);
+		} else if (this.getDirection() == Direction.DOWN) {
+			g.fillRect(this.getX() + 20, this.getY() + 30, 24, 34);
+		} else if (this.getDirection() == Direction.LEFT) {
+			g.fillRect(this.getX(), this.getY() + 20, 34, 24);
+		} else {
+			g.fillRect(this.getX() + 30, this.getY() + 20, 34, 24);
+		}
+	}
+
 
 }

@@ -1,4 +1,6 @@
-public class Bullet {
+import java.awt.*;
+
+public class Bullet implements Drawable{
 	
 	private int speed = 5;
 	private int x;
@@ -30,10 +32,16 @@ public class Bullet {
 	public void updateY  (int y) { 
 		this.y+=y;
 	}
+
     
 	public void destroy () {
     	x = -100;
     	y = -100;
     	
     }
+	public void draw (Graphics g) {
+		g.setColor(new Color(255, 255, 0));
+		g.fillRect(this.getX(), this.getY(), 14, 14);
+
+	}
 }
