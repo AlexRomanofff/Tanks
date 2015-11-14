@@ -48,7 +48,7 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 
 	}
 	private void coordTanks(ActionField af, String quadrant) {
-		String coord=af.getQuadrantXY(Integer.parseInt(quadrant.substring(0,1)), Integer.parseInt(quadrant.substring(2)));
+		String coord=bf.getQuadrantXY(Integer.parseInt(quadrant.substring(0,1)), Integer.parseInt(quadrant.substring(2)));
 		int separator = coord.indexOf("_");
 		y = Integer.parseInt(coord.substring(0, separator));
 		x = Integer.parseInt(coord.substring(separator + 1));
@@ -133,7 +133,7 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 	
 	public void moveToQuadrant(int v, int h) throws Exception {
 
-		String quadrant = af.getQuadrantXY(v, h);
+		String quadrant = bf.getQuadrantXY(v, h);
 
 		int separator = quadrant.indexOf("_");
 		int y = Integer.parseInt(quadrant.substring(0, separator));
