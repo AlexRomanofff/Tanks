@@ -4,7 +4,6 @@ import java.awt.*;
 
 public class ActionField extends JPanel {
 	
-//	final boolean COLORDED_MODE = true;
 	private BattleField battleField;
 	private Bullet bullet;
 	private AbstraktTank agressor;
@@ -50,7 +49,7 @@ public class ActionField extends JPanel {
 			agressor = new Tiger(this, battleField, Direction.UP);}
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
-			if (battleField.scanQuadrant(y, x).equals("B")) {
+			if (battleField.scanQuadrant(y, x).equals("R")) {
 				battleField.updateQuadrant(y, x, " ");
 
 				return true;}
@@ -125,10 +124,6 @@ public class ActionField extends JPanel {
 		return step;
 	}
 
-//	public String getQuadrantXY(int v, int h) {
-//
-//		return (v - 1) * 64 + "_" + (h - 1) * 64;
-//	}
 
 	public String getQuadrant(int x, int y) {
 
@@ -146,10 +141,10 @@ public class ActionField extends JPanel {
 
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
 
-			moveUpDown(step, tank.getDirection(), tank);
+			moveUpDown(step, tank);
 			return;
 		}
-		moveLeftRight(step, tank.getDirection(),tank);
+		moveLeftRight(step,tank);
 
 	}
 
@@ -163,7 +158,7 @@ public class ActionField extends JPanel {
 		return step;
 	}
 
-	private void moveUpDown(int step, Direction direction, AbstraktTank tank)	throws Exception {
+	private void moveUpDown(int step, AbstraktTank tank)	throws Exception {
 		int covered = 0;
 
 		while (covered < 64) {
@@ -175,7 +170,7 @@ public class ActionField extends JPanel {
 		}
 	}
 	
-	private void moveLeftRight(int step, Direction direction, AbstraktTank tank) throws Exception {
+	private void moveLeftRight(int step, AbstraktTank tank) throws Exception {
 		int covered = 0;
 		
 		while (covered < 64) {

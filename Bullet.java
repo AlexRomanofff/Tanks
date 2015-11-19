@@ -1,6 +1,6 @@
 import java.awt.*;
 
-public class Bullet implements Drawable{
+public class Bullet implements Destroyable, Drawable{
 	
 	private int speed = 5;
 	private int x;
@@ -33,7 +33,7 @@ public class Bullet implements Drawable{
 		this.y+=y;
 	}
 
-    
+    @Override
 	public void destroy () {
     	x = -100;
     	y = -100;

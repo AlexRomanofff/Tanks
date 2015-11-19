@@ -10,6 +10,8 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 	ActionField af;
 	BattleField bf;
 	String quadrant = randomChoiseQuadrant();
+	private Color tankColor;
+	private Color towerColor;
 
 	public AbstraktTank(ActionField af, BattleField bf) {
 		this(af, bf, 192, 512, Direction.UP);
@@ -28,6 +30,22 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
+	}
+
+	public Color getTankColor() {
+		return tankColor;
+	}
+
+	public void setTankColor(Color tankColor) {
+		this.tankColor = tankColor;
+	}
+
+	public Color getTowerColor() {
+		return towerColor;
+	}
+
+	public void setTowerColor(Color towerColor) {
+		this.towerColor = towerColor;
 	}
 
 	public String randomChoiseQuadrant () {
@@ -197,10 +215,10 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 	}
 
 	public void draw (Graphics g) {
-		g.setColor(new Color(255, 0, 0));
+		g.setColor(tankColor);
 		g.fillRect(this.getX(), this.getY(), 64, 64);
 
-		g.setColor(new Color(0, 255, 0));
+		g.setColor(towerColor);
 		if (this.getDirection() == Direction.UP) {
 			g.fillRect(this.getX() + 20, this.getY(), 24, 34);
 		} else if (this.getDirection() == Direction.DOWN) {
