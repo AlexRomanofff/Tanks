@@ -5,18 +5,18 @@ public class BattleField {
 	private int BF_WIDTH = 576;
 	private int BF_HEIGHT = 576;
 	final boolean COLORDED_MODE = true;
-	private Brick brick = new Brick();
+
 
 	
-	String[][] battleField = { { "B", "R", "B", "B", " ", "B", "B", "R", "B" },
+	String[][] battleField = { { "B", "R", "B", "B", "E", "B", "B", "R", "B" },
 			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
 			{ "B", "B", " ", " ", " ", " ", " ", "B", "B" },
 			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },
 			{ " ", " ", "B", "B", "B", "B", "B", " ", " " },
 			{ " ", " ", "B", "B", "B", "B", "B", " ", " " },
-			{ " ", " ", " ", "B", "B", "B", " ", " ", " " },
+			{ " ", " ", " ", "W", "W", "W", " ", " ", " " },
 			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },
-			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
+			{ "B", "B", "B", " ", " ", " ", "W", "B", "W" },
 			
 			
 
@@ -59,7 +59,7 @@ public class BattleField {
 		return battleField.length;
 	}
 
-    public void draw (Graphics g) {
+	public void draw(Graphics g) {
 		int i = 0;
 		Color cc;
 		for (int v = 0; v < 9; v++) {
@@ -81,26 +81,24 @@ public class BattleField {
 
 		for (int j = 0; j < getDimensionY(); j++) {
 			for (int k = 0; k < getDimensionX(); k++) {
-				String coordinates = getQuadrantXY(j+1, k+1);
-				int separator = coordinates.indexOf("_");
-				int y = Integer.parseInt(coordinates
-						.substring(0, separator));
-				int x = Integer.parseInt(coordinates
-						.substring(separator + 1));
-				if (scanQuadrant(j, k).equals("B")) {
+				if (scanQuadrant(j, k).equals(" ")) {
 
-					g.setColor(new Color(0, 0, 255));
-					g.fillRect(x, y, 64, 64);
-				    }else if (scanQuadrant(j,k).equals("R")) {
-					brick.draw(g);
-					g.fillRect(x, y, 64, 64);
-
-
-
+				} else {
+				choiseObject(j,k).draw(g);
 				}
 			}
 		}
-
 	}
-
+	private AbstractBFObject choiseObject (int x, int y) {
+		AbstractBFObject obj;
+		if (scanQuadrant(x, y).equals("B")) {
+			obj = new Brick(y*64, x*64);
+		} else if (scanQuadrant(x, y).equals("R")) {
+			obj = new Rock(y*64, x*64);
+		} else if (scanQuadrant(x, y).equals("W")) {
+			obj = new Water(y*64, x*64);
+		} else {
+			obj = new Eagle(y*64, x*64);
+		}return obj;
+	}
 }

@@ -3,19 +3,21 @@ import java.awt.*;
 /**
  * Created by Алекс on 16.11.2015.
  */
-public class Brick implements Destroyable, Drawable {
+public class Brick extends AbstractBFObject implements Destroyable, Drawable {
 
-    public  Brick () {
+    public  Brick (int x,int y) {
+        super(x,y);
 
     }
     @Override
     public void draw (Graphics g) {
-        g.setColor(new Color(255, 0, 0));
+        g.setColor(Color.BLUE);
+        super.draw(g);
 
     }
 
     public void destroy () {
-
-
+        setX(-100);
+        setY(-100);
     }
 }

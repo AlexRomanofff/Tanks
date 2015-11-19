@@ -49,7 +49,7 @@ public class ActionField extends JPanel {
 			agressor = new Tiger(this, battleField, Direction.UP);}
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
-			if (battleField.scanQuadrant(y, x).equals("R")) {
+			if (battleField.scanQuadrant(y, x).equals("B")) {
 				battleField.updateQuadrant(y, x, " ");
 
 				return true;}
@@ -218,9 +218,6 @@ public class ActionField extends JPanel {
 	void processTurn(AbstraktTank tank) throws Exception {
 		repaint();		
 	}
-	
-		
-
 
 	
 	protected void paintComponent(Graphics g) {
