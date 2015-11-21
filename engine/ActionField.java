@@ -56,7 +56,7 @@ public class  ActionField extends JPanel {
 		int y = Integer.parseInt(quadrantBullet.substring(0, separator));
 		int x = Integer.parseInt(quadrantBullet.substring(separator + 1));
 		if (agressor.getX()<0) {
-			Thread.sleep(3000);
+			Thread.sleep (3000);
 			agressor = new Tiger(this, battleField, Direction.UP);}
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
