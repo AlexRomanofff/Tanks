@@ -1,10 +1,9 @@
 package movelableObjects;
 
 import fieldObjects.BattleField;
-import interfaces.Destroyable;
-import interfaces.Drawable;
-import engine.*;
+import interfaces.*;
 import java.awt.*;
+import engine.*;
 import java.util.Random;
 
 public abstract class AbstraktTank implements Destroyable, Drawable {
@@ -20,14 +19,15 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 	private Color towerColor;
 
 	public AbstraktTank(ActionField af, BattleField bf) {
-		this(af, bf, 192, 512, Direction.UP);
-	}
+		this(af, bf, 256, 512, Direction.UP);
+		}
 
 	public AbstraktTank(ActionField af, BattleField bf, Direction direction) {
 		this.af = af;
 		this.bf = bf;
-		coordTanks(af, quadrant);
+		coordTanks(quadrant);
 		this.direction = direction;
+
 	}
 
 	public AbstraktTank(ActionField af, BattleField bf, int x, int y, Direction direction) {
@@ -36,6 +36,7 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
+
 	}
 
 	public Color getTankColor() {
@@ -71,7 +72,7 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 		}
 
 	}
-	private void coordTanks(ActionField af, String quadrant) {
+	private void coordTanks(String quadrant) {
 		String coord=bf.getQuadrantXY(Integer.parseInt(quadrant.substring(0,1)), Integer.parseInt(quadrant.substring(2)));
 		int separator = coord.indexOf("_");
 		y = Integer.parseInt(coord.substring(0, separator));
@@ -142,13 +143,7 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 				direction = Direction.RIGHT;
 			}
 			turn(direction);
-			
-			if (af.checkRange(this,direction)) {
-			} else {
-				if (af.checkNextQuadrant(this).trim().isEmpty()) {
-					move();
-				}
-			}
+			move();
 			System.out.println(random);
 
 		}
@@ -235,6 +230,10 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 			g.fillRect(this.getX() + 30, this.getY() + 20, 34, 24);
 		}
 	}
+//	public void updateTankPosition (int x, int y) {
+//		String coord = af.getQuadrant(y,x);
+//		bf.updateQuadrant(Integer.parseInt(coord.substring(0,1)),Integer.parseInt(coord.substring(2)), "T") ;
+//	}
 
 
 }

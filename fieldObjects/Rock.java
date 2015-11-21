@@ -1,8 +1,9 @@
 package fieldObjects;
 
-import interfaces.Destroyable;
+
 
 import java.awt.*;
+import interfaces.*;
 
 /**
  * Created by Алекс on 19.11.2015.

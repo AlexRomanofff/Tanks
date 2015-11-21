@@ -1,6 +1,5 @@
 package fieldObjects;
 
-import fieldObjects.*;
 
 import java.awt.*;
 
@@ -12,7 +11,7 @@ public class BattleField {
 
 
 	
-	public String[][] battleField = { { "B", "R", "B", "B", "E", "B", "B", "R", "B" },
+	public String[][] battleField = { { "B", "R", "B", "B", "R", "B", "B", "R", "B" },
 			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
 			{ "B", "B", " ", " ", " ", " ", " ", "B", "B" },
 			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },

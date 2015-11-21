@@ -1,9 +1,8 @@
 package movelableObjects;
 
-import java.awt.*;
-import engine.*;
 import fieldObjects.BattleField;
-
+import java.awt.*;
+import engine.ActionField;
 public class Tiger extends AbstraktTank {
 	
 	private int armor=1;

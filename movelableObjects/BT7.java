@@ -1,9 +1,11 @@
 package movelableObjects;
 
-import java.awt.*;
-import engine.*;
+import engine.ActionField;
 import fieldObjects.BattleField;
+import movelableObjects.AbstraktTank;
 
+import java.awt.*;
+import engine.ActionField;
 public class BT7 extends AbstraktTank {
 	
 	

@@ -1,10 +1,8 @@
 package movelableObjects;
 
-import interfaces.Destroyable;
-import interfaces.Drawable;
-
 import java.awt.*;
 
+import interfaces.*;
 public class Bullet implements Destroyable, Drawable {
 	
 	private int speed = 5;

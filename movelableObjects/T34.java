@@ -1,6 +1,7 @@
 package movelableObjects;
-import engine.*;
+
 import fieldObjects.BattleField;
+import engine.ActionField;
 
 import java.awt.*;
 
@@ -20,6 +21,11 @@ public class T34 extends AbstraktTank {
 
     }
 
+    @Override
+    public void fire() throws Exception {
+        Bullet bullet = new BulletT34(getX()+25, getY()+25, getDirection());
+        af.processFire(bullet);
+    }
 }
 
 

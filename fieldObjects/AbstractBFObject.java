@@ -1,8 +1,7 @@
 package fieldObjects;
 
-import interfaces.Drawable;
-
 import java.awt.*;
+import interfaces.*;
 
 /**
  * Created by Алекс on 19.11.2015.
