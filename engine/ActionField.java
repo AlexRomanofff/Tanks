@@ -3,11 +3,7 @@ package engine;
 import fieldObjects.*;
 import movelableObjects.AbstraktTank;
 import movelableObjects.Bullet;
-import movelableObjects.T34;
 import movelableObjects.*;
-
-
-import javax.security.auth.Destroyable;
 import javax.swing.*;
 import java.awt.*;
 
@@ -24,7 +20,7 @@ public class  ActionField extends JPanel {
 
 		battleField = new BattleField();
 		bullet = new Bullet(-100, -100, Direction.UP);
-		defender = new BT7(this, battleField);
+		defender = new T34(this, battleField);
 		agressor = new Tiger(this, battleField, Direction.UP);
 
 
