@@ -9,24 +9,29 @@ public class BattleField {
 	private int BF_HEIGHT = 576;
 	private boolean COLORDED_MODE = true;
 
-
-	
 	public String[][] battleField = { { "B", "R", "B", "B", "R", "B", "B", "R", "B" },
 			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
 			{ "B", "B", " ", " ", " ", " ", " ", "B", "B" },
 			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },
 			{ " ", " ", "B", "B", "B", "B", "B", " ", " " },
-			{ " ", " ", "B", "B", "B", "B", "B", " ", " " },
+			{ " ", " ", "B", "B", "R", "B", "B", " ", " " },
 			{ " ", " ", " ", "W", "W", "W", " ", " ", " " },
 			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },
 			{ "B", "B", "B", " ", " ", " ", "W", "B", "W" },
-			
-			
 
 	};
+	public AbstractBFObject [][] fieldObjects = new AbstractBFObject[battleField[0].length][battleField.length];
+
+	private void fillGameField () {
+		for (int j = 0; j < getDimensionY(); j++) {
+			for (int k = 0; k < getDimensionX(); k++) {
+					fieldObjects[j][k] = choiseObject(j,k);
+			}
+		}
+	}
 	
 	public BattleField () {
-		
+		fillGameField();
 	}
 	
     public BattleField (String [][] battleField) {
@@ -41,12 +46,14 @@ public class BattleField {
 		return BF_HEIGHT;
 	}
 	
-	public String scanQuadrant (int v, int h) {
+	public AbstractBFObject scanQuadrant (int v, int h) {
+		return fieldObjects[v][h];
+	}
+	public String scanQuadrantBF (int v, int h) {
 		return battleField[v][h];
 	}
-	
-	public void updateQuadrant (int v, int h, String object) { 
-		battleField[v][h]=object;
+	public void updateQuadrant (int v, int h, AbstractBFObject object) {
+		fieldObjects[v][h]=object;
 		
 	}
 	public String getQuadrantXY(int v, int h) {
@@ -63,6 +70,12 @@ public class BattleField {
 	}
 
 	public void draw(Graphics g) {
+
+		drawWindow(g);
+        drawObjects(g);
+	}
+
+	private void drawWindow(Graphics g) {
 		int i = 0;
 		Color cc;
 		for (int v = 0; v < 9; v++) {
@@ -81,25 +94,29 @@ public class BattleField {
 				g.fillRect(h * 64, v * 64, 64, 64);
 			}
 		}
-
-		for (int j = 0; j < getDimensionY(); j++) {
-			for (int k = 0; k < getDimensionX(); k++) {
-				if (!scanQuadrant(j, k).equals(" ")) {
-				choiseObject(j,k).draw(g);
-				}
-			}
-		}
 	}
+
 	private AbstractBFObject choiseObject (int x, int y) {
 		AbstractBFObject obj;
-		if (scanQuadrant(x, y).equals("B")) {
+		if (scanQuadrantBF(x, y).equals("B")) {
 			obj = new Brick(y*64, x*64);
-		} else if (scanQuadrant(x, y).equals("R")) {
+		} else if (scanQuadrantBF(x, y).equals("R")) {
 			obj = new Rock(y*64, x*64);
-		} else if (scanQuadrant(x, y).equals("W")) {
+		} else if (scanQuadrantBF(x, y).equals("W")) {
 			obj = new Water(y*64, x*64);
-		} else {
+		} else if (scanQuadrantBF(x, y).equals("E")) {
 			obj = new Eagle(y*64, x*64);
-		}return obj;
+		}else {
+			obj = new Empty(y * 64, x * 64);
+		}
+	return obj;
+	}
+
+	private void drawObjects (Graphics g) {
+		for (int j = 0; j < getDimensionY(); j++) {
+			for (int k = 0; k < getDimensionX(); k++) {
+				fieldObjects[j][k].draw(g);
+			}
+		}
 	}
 }

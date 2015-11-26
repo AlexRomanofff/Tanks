@@ -124,96 +124,12 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 		
 	}
 
-		
-	public void moveRandom () throws Exception {
-		
-		while (true) {
-			int random = (int) (System.nanoTime() % 4+1);
-		    
-			if (random==1) {
-				direction = Direction.UP;
-			} 
-			else if (random==2) {
-				direction = Direction.DOWN;
-			}
-			else if (random==3) {
-				direction = Direction.LEFT;
-			}
-			else {
-				direction = Direction.RIGHT;
-			}
-			turn(direction);
-			move();
-			System.out.println(random);
-
-		}
-
-	}
-	
-	public void moveToQuadrant(int v, int h) throws Exception {
-
-		String quadrant = bf.getQuadrantXY(v, h);
-
-		int separator = quadrant.indexOf("_");
-		int y = Integer.parseInt(quadrant.substring(0, separator));
-		int x = Integer.parseInt(quadrant.substring(separator + 1));
-
-		if (x > getX()) {
-			direction = Direction.RIGHT;
-
-		} else if (x < getX()) {
-			direction = Direction.LEFT;
-		}
-		turn(direction);
-		fire();
-      		while ( x!=getX()) {
-
-			if (!af.checkNextQuadrant(this).equals(" ")) {
-				fire();
-			}
-			move();
-		}
-		
-		if (y > getY()) { direction = Direction.DOWN;
-		} 
-		else if (y < getY()) { direction = Direction.UP;
-		}
-		turn(direction);
-		fire();
-		while (y != getY()) {
-
-			if (!af.checkNextQuadrant(this).equals(" ")) {
-				fire();
-			}
-			move();
-		}
-
-}
-
 	public void destroy() {
 		x=-100;
 		y=-100;
 	}
 	
-	public void clean() throws Exception {
 
-		for (int i = 1; i <= 9; i++) {
-
-			moveToQuadrant(i, 1);
-
-			turn(Direction.RIGHT);
-
-			for (int x = 1; x < bf.battleField.length + 1; x++) {
-
-				if (bf.scanQuadrant(i - 1, x - 1).trim().isEmpty()) {
-
-				} else {
-					fire();
-
-				}
-			}
-		}
-	}
 
 	public void draw (Graphics g) {
 		g.setColor(tankColor);
@@ -230,10 +146,6 @@ public abstract class AbstraktTank implements Destroyable, Drawable {
 			g.fillRect(this.getX() + 30, this.getY() + 20, 34, 24);
 		}
 	}
-//	public void updateTankPosition (int x, int y) {
-//		String coord = af.getQuadrant(y,x);
-//		bf.updateQuadrant(Integer.parseInt(coord.substring(0,1)),Integer.parseInt(coord.substring(2)), "T") ;
-//	}
 
 
 }

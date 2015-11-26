@@ -1,6 +1,7 @@
 package engine;
 
 import fieldObjects.*;
+import interfaces.Drawable;
 import movelableObjects.AbstraktTank;
 import movelableObjects.Bullet;
 import movelableObjects.*;
@@ -34,13 +35,18 @@ public class  ActionField extends JPanel {
 	}
 	
 	public void runTheGame() throws Exception {
-//        agressor.moveRandom();
-//		defender.moveToQuadrant(1,1);
+
+        defender.turn(Direction.RIGHT);
+//		defender.move();
+//		defender.move();
+//		defender.move();
 		defender.fire();
 		defender.fire();
-		defender.fire();
-		defender.fire();
-		defender.fire();
+//		defender.fire();
+//		defender.fire();
+//		defender.fire();
+		defender.move();
+		defender.move();
 
 
 	}
@@ -51,17 +57,31 @@ public class  ActionField extends JPanel {
 		int separator = quadrantBullet.indexOf("_");
 		int y = Integer.parseInt(quadrantBullet.substring(0, separator));
 		int x = Integer.parseInt(quadrantBullet.substring(separator + 1));
+
+
 		if (agressor.getX()<0) {
 			Thread.sleep (3000);
 			agressor = new Tiger(this, battleField, Direction.UP);}
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
-			if (battleField.scanQuadrant(y, x).equals("B")||battleField.scanQuadrant(y, x).equals("E")) {
-				battleField.updateQuadrant(y, x, " ");
-				return true;}
-			if (battleField.scanQuadrant(y, x).equals("R")) {
+              AbstractBFObject fobj = battleField.scanQuadrant(y,x);
+
+			if (fobj instanceof Brick) {
+				battleField.updateQuadrant(y, x, new Empty(x*64,y*64));
+				((Brick) fobj).destroy();
+				return true;
+			}
+
+		    if (fobj instanceof Eagle) {
+				battleField.updateQuadrant(y, x, new Empty(x*64,y*64));
+				((Eagle) fobj).destroy();
+				return true;
+			}
+
+			if (fobj instanceof Rock) {
 				if (bullet instanceof BulletT34) {
-					battleField.updateQuadrant(y, x, " ");
+					battleField.updateQuadrant(y, x,new Empty(x*64,y*64));
+					((Rock) fobj).destroy();
 				}return true;
 			}
 
@@ -69,17 +89,8 @@ public class  ActionField extends JPanel {
 			if(checkInterceptionInQuadrant(quadrantBullet, tankQuadrant)) {
 
 				agressor.destroy();
-
 				return true;
 			}
-//			tankQuadrant = tankQuadrant(defender);
-//			if(checkInterceptionInQuadrant(quadrantBullet, tankQuadrant)) {
-//
-//				defender.destroy();
-//
-//				return true;
-//			}
-
 
 		}return  false;
 
@@ -202,7 +213,7 @@ public class  ActionField extends JPanel {
 		}
 
 	}
-	public String checkNextQuadrant(AbstraktTank tank)  {
+	public Drawable checkNextQuadrant(AbstraktTank tank)  {
 
 		String quadrant = getQuadrant(tank.getX(), tank.getY());
 
@@ -210,23 +221,33 @@ public class  ActionField extends JPanel {
 		int separator = quadrant.indexOf("_");
 		int tankY = Integer.parseInt(quadrant.substring(0, separator));
 		int tankX = Integer.parseInt(quadrant.substring(separator + 1));
+
+		if (checkTankPresence(tank, tankY, tankX, separator)) return agressor;
+
+		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
+				tankY = tankY + step;
+			} else {
+				tankX = tankX + step;
+			}
+
+
+		return battleField.scanQuadrant(tankY, tankX);
+
+	}
+
+	private boolean checkTankPresence(AbstraktTank tank, int tankY, int tankX, int separator) {
 		String quadrantOpponent = getQuadrant(agressor.getX(), agressor.getY());
 		if (tank == agressor) {
 			quadrantOpponent = getQuadrant(defender.getX(), defender.getY());
 		}
-		int xOpponent = Integer.parseInt(quadrantOpponent.substring(separator + 1));
-		int yOpponent = Integer.parseInt(quadrantOpponent.substring(0, separator));
-
-		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
-            tankY=tankY+step;
-		} else {
-			tankX=tankX+step;
+		if (quadrantOpponent.length()==3) {
+			int xOpponent = Integer.parseInt(quadrantOpponent.substring(separator + 1));
+			int yOpponent = Integer.parseInt(quadrantOpponent.substring(0, separator));
+			if ((tankX == xOpponent) && (tankY == yOpponent)) {
+				return true;
+			}
 		}
-		if ((tankX==xOpponent)&&(tankY==yOpponent)) {
-			return "T";
-		}
-		return battleField.scanQuadrant(tankY, tankX);
-
+		return false;
 	}
 
 	public boolean checkRange(AbstraktTank tank, Direction direction) {
@@ -234,7 +255,7 @@ public class  ActionField extends JPanel {
 				|| (tank.getY() >= 512 && direction == Direction.DOWN)
 				|| (tank.getX() >= 512 && direction == Direction.RIGHT)
 				|| (tank.getX() <= 0 && direction == Direction.LEFT))
-				|| (!checkNextQuadrant(tank).trim().isEmpty());
+				|| !(checkNextQuadrant(tank) instanceof Empty);
 	}
 		
 	public void processTurn(AbstraktTank tank) throws Exception {
