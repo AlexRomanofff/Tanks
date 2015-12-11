@@ -9,14 +9,18 @@ public class Bullet implements Destroyable, Drawable {
 	private int x;
 	private int y;
 	private Direction direction;
+	private boolean isDestroyed;
+	private Tank tank;
 	
-	public Bullet (int x, int y, Direction direction) {
+	public Bullet (int x, int y, Direction direction, Tank tank) {
 		this.x = x;
 		this.y = y;
-		this.direction = direction;
+		this.direction = tank.getDirection();
+		this.tank = tank;
+		isDestroyed = false;
 	}
-	
-		
+
+
 	public int getSpeed() {
 		return speed;
 	}
@@ -36,15 +40,22 @@ public class Bullet implements Destroyable, Drawable {
 		this.y+=y;
 	}
 
-    @Override
-	public void destroy () {
-    	x = -100;
-    	y = -100;
-    	
-    }
-	public void draw (Graphics g) {
-		g.setColor(new Color(255, 255, 0));
-		g.fillRect(this.getX(), this.getY(), 14, 14);
+	public Tank getTank() {
+		return tank;
+	}
 
+	@Override
+	public boolean isDestroyed() {
+		return isDestroyed;
+	}
+
+	public void destroy() {
+		isDestroyed = true;
+	}
+	public void draw (Graphics g) {
+		if (!isDestroyed) {
+			g.setColor(new Color(255, 255, 0));
+			g.fillRect(this.getX(), this.getY(), 14, 14);
+		}
 	}
 }

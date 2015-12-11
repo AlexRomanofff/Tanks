@@ -2,7 +2,7 @@ package engine;
 
 import fieldObjects.*;
 import interfaces.Drawable;
-import movelableObjects.AbstraktTank;
+import movelableObjects.Action;
 import movelableObjects.Bullet;
 import movelableObjects.*;
 import javax.swing.*;
@@ -13,17 +13,17 @@ public class  ActionField extends JPanel {
 	
 	private BattleField battleField;
 	private Bullet bullet;
-	private AbstraktTank agressor;
-    private AbstraktTank defender;
-
+	private Tank agressor;
+    private Tank defender;
+    private BFObject eagle;
 
 	public ActionField () throws Exception {
 
 		battleField = new BattleField();
-		bullet = new Bullet(-100, -100, Direction.UP);
-		defender = new T34(this, battleField);
-		agressor = new Tiger(this, battleField, Direction.UP);
-
+		agressor = new BT7(battleField);
+		defender = new Tiger(battleField, Direction.UP);
+        bullet = new Bullet(-100, -100, Direction.LEFT, agressor);
+		eagle = battleField.fieldObjects[8][4];
 
 		JFrame frame = new JFrame("BATTLE FIELD, DAY 2");
 		frame.setLocation(750, 150);
@@ -33,27 +33,30 @@ public class  ActionField extends JPanel {
 		frame.pack();
 		frame.setVisible(true);
 	}
-	
-	public void runTheGame() throws Exception {
 
-        defender.turn(Direction.RIGHT);
-//		defender.move();
-//		defender.move();
-//		defender.move();
-		defender.fire();
-		defender.fire();
-//		defender.fire();
-//		defender.fire();
-//		defender.fire();
-		defender.move();
-		defender.move();
-
-
+	void runTheGame() throws Exception {
+		while (true) {
+			if (!agressor.isDestroyed() && !defender.isDestroyed() && !eagle.isDestroyed()) {
+				processAction(agressor.setUp(), agressor);
+			}
+			if (!agressor.isDestroyed() && !defender.isDestroyed()&& !eagle.isDestroyed())  {
+				processAction(defender.setUp(), defender);
+			}
+		}
 	}
-	
+
+	private void processAction(Action a, Tank t) throws Exception {
+		if (a == Action.MOVE) {
+			processMove(t);
+		} else if (a == Action.FIRE) {
+			processFire(t.fire());
+		} else if (a == Action.TURNING){
+			processTurn(t);
+		}
+	}
 	private boolean processInterception(Bullet bullet) throws Exception {
 
-		String quadrantBullet = getQuadrant(bullet.getX(), bullet.getY());
+		String quadrantBullet = battleField.getQuadrant(bullet.getX(), bullet.getY());
 		int separator = quadrantBullet.indexOf("_");
 		int y = Integer.parseInt(quadrantBullet.substring(0, separator));
 		int x = Integer.parseInt(quadrantBullet.substring(separator + 1));
@@ -61,43 +64,49 @@ public class  ActionField extends JPanel {
 
 		if (agressor.getX()<0) {
 			Thread.sleep (3000);
-			agressor = new Tiger(this, battleField, Direction.UP);}
+			agressor = new Tiger(battleField, Direction.UP);}
+
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
               AbstractBFObject fobj = battleField.scanQuadrant(y,x);
 
-			if (fobj instanceof Brick) {
+			if (fobj instanceof Brick || fobj instanceof Eagle) {
 				battleField.updateQuadrant(y, x, new Empty(x*64,y*64));
-				((Brick) fobj).destroy();
-				return true;
-			}
-
-		    if (fobj instanceof Eagle) {
-				battleField.updateQuadrant(y, x, new Empty(x*64,y*64));
-				((Eagle) fobj).destroy();
+				fobj.destroy();
 				return true;
 			}
 
 			if (fobj instanceof Rock) {
-				if (bullet instanceof BulletT34) {
+				if (bullet.getTank() instanceof T34) {
 					battleField.updateQuadrant(y, x,new Empty(x*64,y*64));
-					((Rock) fobj).destroy();
+					fobj.destroy();
 				}return true;
 			}
 
 			String tankQuadrant = tankQuadrant(agressor);
 			if(checkInterceptionInQuadrant(quadrantBullet, tankQuadrant)) {
-
-				agressor.destroy();
-				return true;
+				if (bullet.getTank() == agressor) {
+					return false;
+				} else {
+					agressor.destroy();
+					return true;
+				}
 			}
-
+			tankQuadrant = tankQuadrant(defender);
+			if(checkInterceptionInQuadrant(quadrantBullet, tankQuadrant)) {
+				if (bullet.getTank() == defender) {
+					return false;
+				} else {
+					defender.destroy();
+					return true;
+				}
+			}
 		}return  false;
 
 	}
 
-	private String tankQuadrant (AbstraktTank tank) {
-		return getQuadrant(tank.getX(),tank.getY());
+	private String tankQuadrant (Tank tank) {
+		return battleField.getQuadrant(tank.getX(),tank.getY());
 	}
 
 
@@ -129,6 +138,9 @@ public class  ActionField extends JPanel {
 				bullet.destroy();
 				repaint();
 				Thread.sleep(bullet.getSpeed());
+				if (bullet.isDestroyed()) {
+					break;
+				}
 
 			}
 		}
@@ -155,12 +167,9 @@ public class  ActionField extends JPanel {
 	}
 
 
-	public String getQuadrant(int x, int y) {
 
-		return (y / 64) + "_" + (x / 64);
-	}
 	
-	public void processMove(AbstraktTank tank) throws Exception {
+	public void processMove(Tank tank) throws Exception {
 
 		processTurn(tank);
 		int step = getStepTank(tank);
@@ -168,8 +177,6 @@ public class  ActionField extends JPanel {
 		if (checkRange(tank, tank.getDirection())) {
 			return;
 		}
-
-
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
 
 			moveUpDown(step, tank);
@@ -179,7 +186,7 @@ public class  ActionField extends JPanel {
 
 	}
 
-	private int getStepTank(AbstraktTank tank) {
+	private int getStepTank(Tank tank) {
 		int step;
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.LEFT) {
 			step = -1;
@@ -189,7 +196,7 @@ public class  ActionField extends JPanel {
 		return step;
 	}
 
-	private void moveUpDown(int step, AbstraktTank tank)	throws Exception {
+	private void moveUpDown(int step, Tank tank)	throws Exception {
 		int covered = 0;
 
 		while (covered < 64) {
@@ -201,7 +208,7 @@ public class  ActionField extends JPanel {
 		}
 	}
 	
-	private void moveLeftRight(int step, AbstraktTank tank) throws Exception {
+	private void moveLeftRight(int step, Tank tank) throws Exception {
 		int covered = 0;
 		
 		while (covered < 64) {
@@ -213,16 +220,16 @@ public class  ActionField extends JPanel {
 		}
 
 	}
-	public Drawable checkNextQuadrant(AbstraktTank tank)  {
+	public Drawable checkNextQuadrant(Tank tank)  {
 
-		String quadrant = getQuadrant(tank.getX(), tank.getY());
+		String quadrant = battleField.getQuadrant(tank.getX(), tank.getY());
 
 		int step = getStepTank(tank);
 		int separator = quadrant.indexOf("_");
 		int tankY = Integer.parseInt(quadrant.substring(0, separator));
 		int tankX = Integer.parseInt(quadrant.substring(separator + 1));
 
-		if (checkTankPresence(tank, tankY, tankX, separator)) return agressor;
+
 
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
 				tankY = tankY + step;
@@ -230,15 +237,16 @@ public class  ActionField extends JPanel {
 				tankX = tankX + step;
 			}
 
+		if (checkTankPresence(tank, tankY, tankX, separator)) return defender;
 
 		return battleField.scanQuadrant(tankY, tankX);
 
 	}
 
-	private boolean checkTankPresence(AbstraktTank tank, int tankY, int tankX, int separator) {
-		String quadrantOpponent = getQuadrant(agressor.getX(), agressor.getY());
+	private boolean checkTankPresence(Tank tank, int tankY, int tankX, int separator) {
+		String quadrantOpponent = battleField.getQuadrant(agressor.getX(), agressor.getY());
 		if (tank == agressor) {
-			quadrantOpponent = getQuadrant(defender.getX(), defender.getY());
+			quadrantOpponent = battleField.getQuadrant(defender.getX(), defender.getY());
 		}
 		if (quadrantOpponent.length()==3) {
 			int xOpponent = Integer.parseInt(quadrantOpponent.substring(separator + 1));
@@ -250,7 +258,7 @@ public class  ActionField extends JPanel {
 		return false;
 	}
 
-	public boolean checkRange(AbstraktTank tank, Direction direction) {
+	public boolean checkRange(Tank tank, Direction direction) {
 		return ((tank.getY() <= 0 && direction == Direction.UP)
 				|| (tank.getY() >= 512 && direction == Direction.DOWN)
 				|| (tank.getX() >= 512 && direction == Direction.RIGHT)
@@ -258,7 +266,7 @@ public class  ActionField extends JPanel {
 				|| !(checkNextQuadrant(tank) instanceof Empty);
 	}
 		
-	public void processTurn(AbstraktTank tank) throws Exception {
+	public void processTurn(Tank tank){
 		repaint();		
 	}
 

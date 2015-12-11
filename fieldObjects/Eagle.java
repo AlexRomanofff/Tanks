@@ -1,12 +1,8 @@
 package fieldObjects;
 
-
 import interfaces.*;
 import java.awt.*;
 
-/**
- * Created by Алекс on 19.11.2015.
- */
 public class Eagle extends AbstractBFObject implements Destroyable, Drawable {
 
     public  Eagle (int x,int y) {
@@ -20,9 +16,5 @@ public class Eagle extends AbstractBFObject implements Destroyable, Drawable {
         super.draw(g);
     }
 
-    @Override
-    public void destroy() {
-        setY(-100);
-        setX(-100);
-    }
+
 }

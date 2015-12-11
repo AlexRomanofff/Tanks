@@ -5,19 +5,20 @@ import java.awt.*;
 
 public class BattleField {
 	
-	private int BF_WIDTH = 576;
-	private int BF_HEIGHT = 576;
-	private boolean COLORDED_MODE = true;
+	private final int BF_WIDTH = 576;
+	private final int BF_HEIGHT = 576;
+	private boolean COLORDED_MODE = false;
 
-	public String[][] battleField = { { "B", "R", "B", "B", "R", "B", "B", "R", "B" },
+	public String[][] battleField = {
+			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
 			{ "B", "B", "B", " ", " ", " ", "B", "B", "B" },
 			{ "B", "B", " ", " ", " ", " ", " ", "B", "B" },
-			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },
-			{ " ", " ", "B", "B", "B", "B", "B", " ", " " },
+			{ "B", " ", " ", "W", "W", "W", " ", " ", "B" },
 			{ " ", " ", "B", "B", "R", "B", "B", " ", " " },
-			{ " ", " ", " ", "W", "W", "W", " ", " ", " " },
+			{ "R", " ", "R", "R", "R", "R", "R", " ", "R" },
+			{ "R", " ", " ", "W", "W", "W", " ", " ", "R" },
 			{ "B", " ", " ", " ", " ", " ", " ", " ", "B" },
-			{ "B", "B", "B", " ", " ", " ", "W", "B", "W" },
+			{ "B", "B", "B", " ", "E", " ", "B", "B", "W" },
 
 	};
 	public AbstractBFObject [][] fieldObjects = new AbstractBFObject[battleField[0].length][battleField.length];
@@ -33,11 +34,7 @@ public class BattleField {
 	public BattleField () {
 		fillGameField();
 	}
-	
-    public BattleField (String [][] battleField) {
-    	this.battleField = battleField;		
-	}
-	
+
 	public int getBF_WIDTH() {		
 		return BF_WIDTH;
 	}
@@ -49,7 +46,7 @@ public class BattleField {
 	public AbstractBFObject scanQuadrant (int v, int h) {
 		return fieldObjects[v][h];
 	}
-	public String scanQuadrantBF (int v, int h) {
+	private String scanQuadrantBF (int v, int h) {
 		return battleField[v][h];
 	}
 	public void updateQuadrant (int v, int h, AbstractBFObject object) {
@@ -60,7 +57,10 @@ public class BattleField {
 
 		return (v - 1) * 64 + "_" + (h - 1) * 64;
 	}
+	public String getQuadrant(int x, int y) {
 
+		return (y / 64) + "_" + (x / 64);
+	}
 	public int getDimensionX () {
 		return battleField[0].length;
 	}

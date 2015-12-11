@@ -2,11 +2,10 @@ package fieldObjects;
 
 import java.awt.*;
 import interfaces.*;
+import movelableObjects.Tank;
 
-/**
- * Created by Алекс on 19.11.2015.
- */
-public abstract class AbstractBFObject implements Drawable {
+
+public abstract class AbstractBFObject implements BFObject {
 
     public AbstractBFObject(int x, int y) {
         this.x=x;
@@ -16,6 +15,7 @@ public abstract class AbstractBFObject implements Drawable {
     private int x;
     private int y;
     private Color color;
+    private boolean isDestroyed = false;
 
     public int getX() {
         return x;
@@ -41,9 +41,19 @@ public abstract class AbstractBFObject implements Drawable {
         this.color = color;
     }
 
+
     @Override
     public void draw(Graphics g) {
-        g.fillRect(getX(),getY(),64,64);
+        if (!isDestroyed) {
 
+        g.fillRect(getX(),getY(),64,64);
+        }
+    }
+    public boolean isDestroyed() {
+        return isDestroyed;
+    }
+
+    public void destroy() {
+        isDestroyed = true;
     }
 }

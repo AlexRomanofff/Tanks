@@ -5,19 +5,11 @@ package fieldObjects;
 import java.awt.*;
 import interfaces.*;
 
-/**
- * Created by Алекс on 19.11.2015.
- */
+
 public class Rock extends AbstractBFObject implements Destroyable {
 
     public  Rock (int x,int y) {
         super(x,y);
-    }
-
-    @Override
-    public void destroy() {
-        setY(-100);
-        setX(-100);
     }
 
     @Override
