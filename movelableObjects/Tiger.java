@@ -49,7 +49,7 @@ public class Tiger extends AbstraktTank {
 	@Override
 	public Action setUp() {
 
-				return Action.MOVE;
+				return Action.FIRE;
 			}
 
 }

@@ -19,7 +19,7 @@ public abstract class AbstraktTank implements Tank{
 	private boolean destroyed;
 
 	public AbstraktTank(BattleField bf) {
-		this(bf, 320, 0, Direction.DOWN);
+		this(bf, 192, 0, Direction.DOWN);
 
 		}
 
@@ -132,7 +132,6 @@ public abstract class AbstraktTank implements Tank{
 	public void destroy() {
 		destroyed = true;
 	}
-
 
 	public void draw(Graphics g) {
 		if (!destroyed) {

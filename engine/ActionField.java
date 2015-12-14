@@ -229,8 +229,6 @@ public class  ActionField extends JPanel {
 		int tankY = Integer.parseInt(quadrant.substring(0, separator));
 		int tankX = Integer.parseInt(quadrant.substring(separator + 1));
 
-
-
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
 				tankY = tankY + step;
 			} else {

@@ -25,7 +25,7 @@ public class BT7 extends AbstraktTank {
 
 	public Action setUp() {
 
-        Object o = fillList();
+        Object o = chooseAction();
 		if (o instanceof Direction){
 			Direction direction = (Direction)o;
 			turn(direction);
@@ -34,28 +34,28 @@ public class BT7 extends AbstraktTank {
 		return (Action) o;}
 
 	}
-	private Object fillList () {
+
+	private Object chooseAction() {
 
 		AbstractBFObject fObj = checkNextQuadrant(getDirection());
-	if (getDirection() != Direction.DOWN) {
-		if ((checkNextQuadrant(Direction.DOWN) instanceof Brick || (checkNextQuadrant(Direction.DOWN) instanceof Empty))) {
-			return Direction.DOWN;
+		if (getDirection() != Direction.DOWN) {
+			if ((checkNextQuadrant(Direction.DOWN) instanceof Brick || (checkNextQuadrant(Direction.DOWN) instanceof Empty))) {
+				return Direction.DOWN;
+			}
 		}
-	}
-	if (fObj == null) {
-		return adaptationDirection();
-	}
-	if (fObj instanceof Water || fObj instanceof Rock) {
-		return adaptationDirection();
+		if (fObj == null) {
+			return adaptationDirection();
 
-	} else if (fObj instanceof Brick || fObj instanceof Eagle) {
-		return Action.FIRE;
+		} else if (fObj instanceof Water || fObj instanceof Rock) {
+			return adaptationDirection();
 
-	} else {
-		return Action.MOVE;
-	}
+		} else if (fObj instanceof Brick || fObj instanceof Eagle) {
+			return Action.FIRE;
 
-}
+		} else {
+			return Action.MOVE;
+		}
+    }
 
 	private AbstractBFObject checkNextQuadrant(Direction direction) {
 		int vert = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(0, 1));
