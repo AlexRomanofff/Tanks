@@ -11,9 +11,9 @@ public abstract class AbstraktTank implements Tank{
 	private int x;
 	private int y;
 	private Direction direction;
-	BattleField bf;
+	protected BattleField bf;
 
-	String quadrant = randomChoiseQuadrant();
+	private String quadrant = randomChoiseQuadrant();
 	private Color tankColor;
 	private Color towerColor;
 	private boolean destroyed;
@@ -55,7 +55,6 @@ public abstract class AbstraktTank implements Tank{
 	public void setTowerColor(Color towerColor) {
 		this.towerColor = towerColor;
 	}
-
 
 
 	public String randomChoiseQuadrant () {

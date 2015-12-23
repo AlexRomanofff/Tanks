@@ -5,6 +5,5 @@ public class Demo {
 
         ActionField af = new ActionField();
         af.runTheGame();
-
     }
 }

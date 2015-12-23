@@ -7,7 +7,7 @@ import movelableObjects.Tank;
 
 public abstract class AbstractBFObject implements BFObject {
 
-    public AbstractBFObject(int x, int y) {
+    public AbstractBFObject(int x, int y){
         this.x=x;
         this.y = y;
     }

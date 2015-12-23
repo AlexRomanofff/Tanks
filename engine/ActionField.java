@@ -51,7 +51,7 @@ public class  ActionField extends JPanel {
 		} else if (a == Action.FIRE) {
 			processFire(t.fire());
 		} else if (a == Action.TURNING){
-			processTurn(t);
+			processTurn();
 		}
 	}
 	private boolean processInterception(Bullet bullet) throws Exception {
@@ -171,7 +171,7 @@ public class  ActionField extends JPanel {
 	
 	public void processMove(Tank tank) throws Exception {
 
-		processTurn(tank);
+		processTurn();
 		int step = getStepTank(tank);
 
 		if (checkRange(tank, tank.getDirection())) {
@@ -264,7 +264,7 @@ public class  ActionField extends JPanel {
 				|| !(checkNextQuadrant(tank) instanceof Empty);
 	}
 		
-	public void processTurn(Tank tank){
+	public void processTurn(){
 		repaint();		
 	}
 

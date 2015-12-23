@@ -23,7 +23,7 @@ public class BattleField {
 	};
 	public AbstractBFObject [][] fieldObjects = new AbstractBFObject[battleField[0].length][battleField.length];
 
-	private void fillGameField () {
+	private void fillGameField () throws Exception  {
 		for (int j = 0; j < getDimensionY(); j++) {
 			for (int k = 0; k < getDimensionX(); k++) {
 					fieldObjects[j][k] = choiseObject(j,k);
@@ -31,7 +31,7 @@ public class BattleField {
 		}
 	}
 	
-	public BattleField () {
+	public BattleField () throws Exception  {
 		fillGameField();
 	}
 
@@ -96,7 +96,7 @@ public class BattleField {
 		}
 	}
 
-	private AbstractBFObject choiseObject (int x, int y) {
+	private AbstractBFObject choiseObject (int x, int y)throws Exception  {
 		AbstractBFObject obj;
 		if (scanQuadrantBF(x, y).equals("B")) {
 			obj = new Brick(y*64, x*64);
