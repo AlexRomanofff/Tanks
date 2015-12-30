@@ -1,6 +1,8 @@
 package fieldObjects;
 
 import java.awt.*;
+import java.awt.image.ImageObserver;
+
 import interfaces.*;
 import movelableObjects.Tank;
 
@@ -16,6 +18,16 @@ public abstract class AbstractBFObject implements BFObject {
     private int y;
     private Color color;
     private boolean isDestroyed = false;
+    private Image image;
+    public final static int SIZE_QUADRANT = 64;
+
+    public void setImage(Image image) {
+        this.image = image;
+    }
+
+    public Image getImage() {
+        return image;
+    }
 
     public int getX() {
         return x;
@@ -45,8 +57,14 @@ public abstract class AbstractBFObject implements BFObject {
     @Override
     public void draw(Graphics g) {
         if (!isDestroyed) {
+            g.drawImage(image, getX(),getY(),getX()+SIZE_QUADRANT, getY()+SIZE_QUADRANT, getX(),getY(),getX()+SIZE_QUADRANT, getY()+SIZE_QUADRANT,
+                    new ImageObserver() {
+                @Override
+                public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
+                    return false;
+                }
 
-        g.fillRect(getX(),getY(),64,64);
+            });
         }
     }
     public boolean isDestroyed() {

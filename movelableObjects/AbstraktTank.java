@@ -1,8 +1,10 @@
 package movelableObjects;
 
 import fieldObjects.BattleField;
+import fieldObjects.Water;
 
 import java.awt.*;
+import java.awt.image.ImageObserver;
 import java.util.Random;
 
 public abstract class AbstraktTank implements Tank{
@@ -12,10 +14,9 @@ public abstract class AbstraktTank implements Tank{
 	private int y;
 	private Direction direction;
 	protected BattleField bf;
+	protected Image[] images;
 
 	private String quadrant = randomChoiseQuadrant();
-	private Color tankColor;
-	private Color towerColor;
 	private boolean destroyed;
 
 	public AbstraktTank(BattleField bf) {
@@ -39,23 +40,6 @@ public abstract class AbstraktTank implements Tank{
 		this.direction = direction;
 
 	}
-
-	public Color getTankColor() {
-		return tankColor;
-	}
-
-	public void setTankColor(Color tankColor) {
-		this.tankColor = tankColor;
-	}
-
-	public Color getTowerColor() {
-		return towerColor;
-	}
-
-	public void setTowerColor(Color towerColor) {
-		this.towerColor = towerColor;
-	}
-
 
 	public String randomChoiseQuadrant () {
 		Random r = new Random();
@@ -117,11 +101,24 @@ public abstract class AbstraktTank implements Tank{
 	public void move()  {
 
 	}
-	
-	public Bullet fire () {
 
-		return new Bullet (x+25, y+25, direction, this);
+	public Bullet fire() {
+		int xBullet = getX() + 27;
+		int yBullet = getY() + 5;
 
+		if (direction == Direction.UP) {
+			xBullet = getX() + 27;
+			yBullet = getY() + 5;
+		} else if (direction == Direction.DOWN) {
+			yBullet = getY() + 59;
+		} else if (direction == Direction.LEFT) {
+			xBullet = getX() + 5;
+			yBullet = getY() + 27;
+		} else if (direction == Direction.RIGHT) {
+			xBullet = getX() + 59;
+			yBullet = getY() + 27;
+		}
+		return new Bullet(xBullet, yBullet, direction, this);
 	}
 
 	public boolean isDestroyed() {
@@ -133,21 +130,29 @@ public abstract class AbstraktTank implements Tank{
 	}
 
 	public void draw(Graphics g) {
+		Graphics2D g2D = (Graphics2D) g;
 		if (!destroyed) {
+			String coordTanks = bf.getQuadrant(getX(), getY());
+				 if (bf.scanQuadrant(Integer.parseInt(coordTanks.substring(0,1)), Integer.parseInt(coordTanks.substring(2))) instanceof Water) {
 
-			g.setColor(tankColor);
-			g.fillRect(this.getX(), this.getY(), 64, 64);
-
-			g.setColor(towerColor);
-			if (this.getDirection() == Direction.UP) {
-				g.fillRect(this.getX() + 20, this.getY(), 24, 34);
-			} else if (this.getDirection() == Direction.DOWN) {
-				g.fillRect(this.getX() + 20, this.getY() + 30, 24, 34);
-			} else if (this.getDirection() == Direction.LEFT) {
-				g.fillRect(this.getX(), this.getY() + 20, 34, 24);
-			} else {
-				g.fillRect(this.getX() + 30, this.getY() + 20, 34, 24);
-			}
+					 g2D.setComposite(AlphaComposite.getInstance(
+						 AlphaComposite.SRC_OVER, 0.3f));
+				 g2D.drawImage(images[getDirection().getID()], getX(), getY(), new ImageObserver() {
+					 @Override
+					 public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+						 return false;
+					 }
+				 });
+			 } else {
+				 g2D.setComposite(AlphaComposite.getInstance(
+						 AlphaComposite.SRC_OVER, 1f));
+				 g2D.drawImage(images[getDirection().getID()], getX(), getY(), new ImageObserver() {
+					 @Override
+					 public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+						 return false;
+					 }
+				 });
+			 }
 		}
 	}
 }

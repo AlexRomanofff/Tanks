@@ -54,8 +54,8 @@ public class Bullet implements Destroyable, Drawable {
 	}
 	public void draw (Graphics g) {
 		if (!isDestroyed) {
-			g.setColor(new Color(255, 255, 0));
-			g.fillRect(this.getX(), this.getY(), 14, 14);
+			g.setColor(Color.DARK_GRAY);
+			g.fillOval(this.getX(), this.getY(), 10, 10);
 		}
 	}
 }

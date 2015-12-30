@@ -21,11 +21,11 @@ public class  ActionField extends JPanel {
 
 		battleField = new BattleField();
 		agressor = new BT7(battleField);
-		defender = new Tiger(battleField, Direction.UP);
+		defender = new Tiger(battleField, 512, 256, Direction.UP);
         bullet = new Bullet(-100, -100, Direction.LEFT, agressor);
 		eagle = battleField.fieldObjects[8][4];
 
-		JFrame frame = new JFrame("BATTLE FIELD, DAY 2");
+		JFrame frame = new JFrame("BATTLE FIELD");
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -261,7 +261,8 @@ public class  ActionField extends JPanel {
 				|| (tank.getY() >= 512 && direction == Direction.DOWN)
 				|| (tank.getX() >= 512 && direction == Direction.RIGHT)
 				|| (tank.getX() <= 0 && direction == Direction.LEFT))
-				|| !(checkNextQuadrant(tank) instanceof Empty);
+				|| !(checkNextQuadrant(tank) instanceof Empty)
+				&& !(checkNextQuadrant(tank) instanceof Water);
 	}
 		
 	public void processTurn(){

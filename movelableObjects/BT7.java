@@ -1,7 +1,11 @@
 package movelableObjects;
 
 import fieldObjects.*;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 public class BT7 extends AbstraktTank {
 	private final int eagleV = 4;
@@ -9,16 +13,13 @@ public class BT7 extends AbstraktTank {
 	public BT7 (BattleField bf) {
 		super(bf);
 		setSpeed(5);
-		setTankColor(new Color(120, 120, 0));
-		setTowerColor(new Color(200, 100, 50));
-
+        setImages();
 	}
 	
 	public BT7 (BattleField bf, int x, int y, Direction direction) {
 		super(bf, x, y, direction);
 		setSpeed(5);
-		setTankColor(new Color(120, 120, 0));
-		setTowerColor(new Color(200, 100, 50));
+		setImages();
 
 	}
 
@@ -96,5 +97,17 @@ public class BT7 extends AbstraktTank {
 		  }
 
 		return direction;
+	}
+	private void setImages () {
+		images = new Image[4];
+		try {
+			images[0] = ImageIO.read(new File("BT7_up.png").getAbsoluteFile());
+			images[1] = ImageIO.read(new File("BT7_down.png").getAbsoluteFile());
+			images[2] = ImageIO.read(new File("BT7_left.png").getAbsoluteFile());
+			images[3] = ImageIO.read(new File("BT7_right.png").getAbsoluteFile());
+		} catch (IOException e) {
+			throw new IllegalStateException("Can't find tank image");
+
+		}
 	}
 }
