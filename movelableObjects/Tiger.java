@@ -13,6 +13,7 @@ public class Tiger extends AbstraktTank {
 	
 	private int armor=1;
 	private Direction []directions = new Direction[4];
+
 	
 	public Tiger  (BattleField bf) {
 		super(bf);
@@ -72,7 +73,6 @@ public class Tiger extends AbstraktTank {
 	}
 	private void generalDirection () {
 
-
 		String coordOpponent = getOpponent();
 		int xOpponent = Integer.parseInt(coordOpponent.substring(2));
 		int yOpponent = Integer.parseInt(coordOpponent.substring(0,1));
@@ -115,16 +115,13 @@ public class Tiger extends AbstraktTank {
 		if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
 			return setNecessaryDirection();
 		}
-		Drawable fObj = checkNextQuadrant(getDirection(), 1);
+		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
 		if (getDirection() != directions[0] ) {
-			if ((checkNextQuadrant(directions[0], 1) instanceof Brick || (checkNextQuadrant(directions[0], 1) instanceof Empty))) {
+			if ((checkNextQuadrant(directions[0], getStep()) instanceof Brick || (checkNextQuadrant(directions[0], getStep()) instanceof Empty))) {
 				return directions[0];
 			}
 		}
-		if (fObj == null) {
-			return adaptationDirection();
-
-		} else if (fObj instanceof Water || fObj instanceof Rock) {
+		if (fObj == null || fObj instanceof Water || fObj instanceof Rock) {
 			return adaptationDirection();
 
 		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
@@ -134,20 +131,19 @@ public class Tiger extends AbstraktTank {
 			return Action.MOVE;
 		}
 	}
-	private Direction adaptationDirection () {
-		Direction direction=getDirection();
-		if ((direction==directions[0])) {
 
-				direction = directions[1];
-
-		} else if (direction==directions[1])  {
+	private Direction adaptationDirection() {
+		Direction direction = getDirection();
+		if ((direction == directions[0])) {
+			direction = directions[1];
+		} else if (direction == directions[1]) {
 			direction = directions[0];
-			if (checkNextQuadrant(direction, 1) instanceof Rock || checkNextQuadrant(direction, 1) instanceof Water) {
+			if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
 				direction = directions[2];
 			}
-		} else if (direction==directions[2])
+		} else if (direction == directions[2])
 			direction = directions[0];
-		if (checkNextQuadrant(direction, 1) instanceof Rock || checkNextQuadrant(direction, 1) instanceof Water) {
+		if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
 			direction = directions[1];
 		}
 
