@@ -13,16 +13,12 @@ public class  ActionField extends JPanel {
 	
 	private BattleField battleField;
 	private Bullet bullet;
-	private Tank agressor;
-    private Tank defender;
     private BFObject eagle;
 
 	public ActionField () throws Exception {
 
 		battleField = new BattleField();
-		agressor = new BT7(battleField);
-		defender = new Tiger(battleField, 512, 256, Direction.UP);
-        bullet = new Bullet(-100, -100, Direction.LEFT, agressor);
+        bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
 		eagle = battleField.fieldObjects[8][4];
 
 		JFrame frame = new JFrame("BATTLE FIELD");
@@ -36,11 +32,12 @@ public class  ActionField extends JPanel {
 
 	void runTheGame() throws Exception {
 		while (true) {
-			if (!agressor.isDestroyed() && !defender.isDestroyed() && !eagle.isDestroyed()) {
-				processAction(agressor.setUp(), agressor);
+
+			if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
+				processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
 			}
-			if (!agressor.isDestroyed() && !defender.isDestroyed()&& !eagle.isDestroyed())  {
-				processAction(defender.setUp(), defender);
+			if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() &&  !eagle.isDestroyed())  {
+				processAction(battleField.getDefender().setUp(), battleField.getDefender());
 			}
 		}
 	}
@@ -61,10 +58,9 @@ public class  ActionField extends JPanel {
 		int y = Integer.parseInt(quadrantBullet.substring(0, separator));
 		int x = Integer.parseInt(quadrantBullet.substring(separator + 1));
 
-
-		if (agressor.getX()<0) {
-			Thread.sleep (3000);
-			agressor = new Tiger(battleField, Direction.UP);}
+//		if (battleField.getAgressor().getX()<0) {
+//			Thread.sleep (3000);
+//			battleField.getAgressor() = new Tiger(battleField, Direction.UP);}
 
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
@@ -83,21 +79,21 @@ public class  ActionField extends JPanel {
 				}return true;
 			}
 
-			String tankQuadrant = tankQuadrant(agressor);
+			String tankQuadrant = tankQuadrant(battleField.getAgressor());
 			if(checkInterceptionInQuadrant(quadrantBullet, tankQuadrant)) {
-				if (bullet.getTank() == agressor) {
+				if (bullet.getTank() == battleField.getAgressor()) {
 					return false;
 				} else {
-					agressor.destroy();
+					battleField.getAgressor().destroy();
 					return true;
 				}
 			}
-			tankQuadrant = tankQuadrant(defender);
+			tankQuadrant = tankQuadrant(battleField.getDefender());
 			if(checkInterceptionInQuadrant(quadrantBullet, tankQuadrant)) {
-				if (bullet.getTank() == defender) {
+				if (bullet.getTank() == battleField.getDefender()) {
 					return false;
 				} else {
-					defender.destroy();
+					battleField.getDefender().destroy();
 					return true;
 				}
 			}
@@ -235,16 +231,16 @@ public class  ActionField extends JPanel {
 				tankX = tankX + step;
 			}
 
-		if (checkTankPresence(tank, tankY, tankX, separator)) return defender;
+		if (checkTankPresence(tank, tankY, tankX, separator)) return battleField.getDefender();
 
 		return battleField.scanQuadrant(tankY, tankX);
 
 	}
 
 	private boolean checkTankPresence(Tank tank, int tankY, int tankX, int separator) {
-		String quadrantOpponent = battleField.getQuadrant(agressor.getX(), agressor.getY());
-		if (tank == agressor) {
-			quadrantOpponent = battleField.getQuadrant(defender.getX(), defender.getY());
+		String quadrantOpponent = battleField.getQuadrant(battleField.getAgressor().getX(), battleField.getAgressor().getY());
+		if (tank == battleField.getAgressor()) {
+			quadrantOpponent = battleField.getQuadrant(battleField.getDefender().getX(), battleField.getDefender().getY());
 		}
 		if (quadrantOpponent.length()==3) {
 			int xOpponent = Integer.parseInt(quadrantOpponent.substring(separator + 1));
@@ -274,8 +270,8 @@ public class  ActionField extends JPanel {
 		super.paintComponent(g);
 
 		battleField.draw(g);
-		defender.draw(g);
-		agressor.draw(g);
+		battleField.getDefender().draw(g);
+		battleField.getAgressor().draw(g);
         bullet.draw(g);
 
 

@@ -1,6 +1,8 @@
 package fieldObjects;
 
 
+import movelableObjects.*;
+
 import java.awt.*;
 
 public class BattleField {
@@ -8,17 +10,19 @@ public class BattleField {
 	private final int BF_WIDTH = 576;
 	private final int BF_HEIGHT = 576;
 	private boolean COLORDED_MODE = false;
+	private Tank agressor;
+	private Tank defender;
 
 	public String[][] battleField = {
-			{ "B", "B", "B", " ", "R", " ", "B", "B", "W" },
+			{ " ", "B", "B", " ", " ", " ", "B", "B", "W" },
 			{ "B", "B", "B", "W", "R", " ", "B", "B", "W" },
 			{ "B", "B", " ", "W", " ", " ", " ", "B", "W" },
-			{ "B", " ", " ", "W", " ", " ", " ", " ", " " },
-			{ " ", " ", "B", "B", "B", "B", "R", " ", " " },
-			{ "R", " ", "R", "R", "R", "R", "", " ", "R" },
+			{ "B", "B", " ", "W", " ", " ", " ", " ", " " },
+			{ " ", " ", "B", "R", "B", "B", " ", " ", " " },
+			{ "R", " ", "R", "R", "R", "R", " ", " ", "R" },
 			{ "R", " ", " ", "W", "W", "W", " ", " ", "R" },
 			{ "B", "R", " ", " ", " ", " ", " ", " ", "B" },
-			{ "B", "B", "B", "B", "E", " ", "B", "B", "W" },
+			{ " ", "B", "B", "B", "E", " ", " ", "B", "W" },
 
 	};
 	public AbstractBFObject [][] fieldObjects = new AbstractBFObject[battleField[0].length][battleField.length];
@@ -33,6 +37,9 @@ public class BattleField {
 	
 	public BattleField () throws Exception  {
 		fillGameField();
+		agressor = new BT7(this);
+		defender = new Tiger(this, 384, 512, Direction.UP);
+
 	}
 
 	public int getBF_WIDTH() {		
@@ -110,6 +117,14 @@ public class BattleField {
 			obj = new Empty(y * 64, x * 64);
 		}
 	return obj;
+	}
+
+	public Tank getAgressor() {
+		return agressor;
+	}
+
+	public Tank getDefender() {
+		return defender;
 	}
 
 	private void drawObjects (Graphics g) {

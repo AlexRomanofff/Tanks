@@ -35,7 +35,7 @@ public class T34 extends AbstraktTank {
 
     @Override
     public Action setUp() {
-        return Action.FIRE;
+        return Action.NONE;
     }
 }
 
