@@ -180,8 +180,6 @@ public abstract class AbstraktTank implements Tank{
 		int vert = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(0, 1));
 		int hor = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(2));
 
-		String quadrantOpponent = getOpponent();
-
 		if (direction == Direction.UP) {
 			vert=vert-step;
 		} else if (direction == Direction.DOWN) {
@@ -192,17 +190,26 @@ public abstract class AbstraktTank implements Tank{
 			hor=hor+step;
 		}
 		String coordinates = (Integer.toString(vert) + "_" + Integer.toString(hor));
-		if (coordinates.equals(quadrantOpponent)) {
-			if (this == bf.getAgressor()) {
-				return bf.getDefender();
-			} else {
-				return bf.getAgressor();
-			}
+		if (coordinates.equals(getOpponent())) {
+			return getEnemy();
 		}
-		if ((hor > 8 || hor < 0) || (vert > 8 || vert < 0)) {
-			return null;
-		}
+		if (checkBorders(vert, hor)) return null;
 		return bf.scanQuadrant(vert, hor);
+	}
+
+	private boolean checkBorders(int vert, int hor) {
+		if ((hor > 8 || hor < 0) || (vert > 8 || vert < 0)) {
+			return true;
+		}
+		return false;
+	}
+
+	private Drawable getEnemy() {
+		if (this == bf.getAgressor()) {
+            return bf.getDefender();
+        } else {
+            return bf.getAgressor();
+        }
 	}
 
 	public Object setNecessaryDirection() {
@@ -237,7 +244,6 @@ public abstract class AbstraktTank implements Tank{
 			}
 		}
 		return true;
-
 	}
 
 	public boolean checkPresenceTankOnLine (String enemyCoord) {
@@ -265,9 +271,5 @@ public abstract class AbstraktTank implements Tank{
 				dir = Direction.DOWN;
 			}
 		}return dir;
-
-
-
 	}
-
 }
