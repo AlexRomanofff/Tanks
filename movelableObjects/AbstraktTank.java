@@ -25,6 +25,11 @@ public abstract class AbstraktTank implements Tank{
 	private int quadrantY;
 	private int quadrantXEnemy;
 	private int quadrantYEnemy;
+	private int step = 1;
+
+	public int getStep() {
+		return step;
+	}
 
 	public AbstraktTank(BattleField bf) {
 

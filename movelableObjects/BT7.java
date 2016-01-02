@@ -44,9 +44,9 @@ public class BT7 extends AbstraktTank {
 			return setNecessaryDirection();
 		}
 
-		Drawable fObj = checkNextQuadrant(getDirection(), 1);
+		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
 		if (getDirection() != Direction.DOWN) {
-			if ((checkNextQuadrant(Direction.DOWN, 1) instanceof Brick || (checkNextQuadrant(Direction.DOWN, 1) instanceof Empty))) {
+			if ((checkNextQuadrant(Direction.DOWN, getStep()) instanceof Brick || (checkNextQuadrant(Direction.DOWN, getStep()) instanceof Empty))) {
 				return Direction.DOWN;
 			}
 		}
@@ -75,12 +75,12 @@ public class BT7 extends AbstraktTank {
 			}
 		} else if (direction==Direction.RIGHT)  {
 			direction = Direction.DOWN;
-            if (checkNextQuadrant(direction, 1) instanceof Rock || checkNextQuadrant(direction, 1) instanceof Water) {
+            if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
 				direction = Direction.LEFT;
 			}
 		} else if (direction==Direction.LEFT)
 			direction = Direction.DOWN;
-		    if (checkNextQuadrant(direction, 1) instanceof Rock || checkNextQuadrant(direction, 1) instanceof Water) {
+		    if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
 			    direction = Direction.RIGHT;
 		  }
 
