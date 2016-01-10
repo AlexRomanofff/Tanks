@@ -5,6 +5,7 @@ import movelableObjects.*;
 
 import java.awt.*;
 
+
 public class BattleField {
 	
 	private final int BF_WIDTH = 576;
@@ -25,9 +26,11 @@ public class BattleField {
 			{ " ", "B", "B", "B", "E", " ", " ", "B", "W" },
 
 	};
+
+
 	public AbstractBFObject [][] fieldObjects = new AbstractBFObject[battleField[0].length][battleField.length];
 
-	private void fillGameField () throws Exception  {
+	private void fillGameField ()  {
 		for (int j = 0; j < getDimensionY(); j++) {
 			for (int k = 0; k < getDimensionX(); k++) {
 					fieldObjects[j][k] = choiseObject(j,k);
@@ -35,12 +38,14 @@ public class BattleField {
 		}
 	}
 	
-	public BattleField () throws Exception  {
-		fillGameField();
-		agressor = new BT7(this);
-		defender = new Tiger(this, 384, 512, Direction.UP);
 
+	public BattleField (int agressorId) {
+
+		fillGameField();
+		agressor = setAgressor(agressorId);
+		defender = new Tiger(this, 384, 512, Direction.UP);
 	}
+
 
 	public int getBF_WIDTH() {		
 		return BF_WIDTH;
@@ -103,8 +108,9 @@ public class BattleField {
 		}
 	}
 
-	private AbstractBFObject choiseObject (int x, int y)throws Exception  {
+	private AbstractBFObject choiseObject (int x, int y)  {
 		AbstractBFObject obj;
+
 		if (scanQuadrantBF(x, y).equals("B")) {
 			obj = new Brick(y*64, x*64);
 		} else if (scanQuadrantBF(x, y).equals("R")) {
@@ -116,6 +122,7 @@ public class BattleField {
 		}else {
 			obj = new Empty(y * 64, x * 64);
 		}
+
 	return obj;
 	}
 
@@ -132,6 +139,17 @@ public class BattleField {
 			for (int k = 0; k < getDimensionX(); k++) {
 				fieldObjects[j][k].draw(g);
 			}
+		}
+	}
+	public Tank setAgressor (int i) {
+		if (i==0) {
+			return new BT7(this);
+		}
+		else if (i==1) {
+			return new Tiger(this);
+		}
+		else {
+			return new T34(this);
 		}
 	}
 }

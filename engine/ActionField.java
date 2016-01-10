@@ -7,6 +7,9 @@ import movelableObjects.Bullet;
 import movelableObjects.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 
 
 public class  ActionField extends JPanel {
@@ -14,35 +17,43 @@ public class  ActionField extends JPanel {
 	private BattleField battleField;
 	private Bullet bullet;
     private BFObject eagle;
+	private int agressorID;
+	JFrame frame;
+	boolean isRun = false;
 
-	public ActionField () throws Exception {
-
-		battleField = new BattleField();
-        bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
+	public ActionField (){
+		frame = new JFrame("BATTLE FIELD");
+		battleField = new BattleField(agressorID);
+		bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
 		eagle = battleField.fieldObjects[8][4];
 
-		JFrame frame = new JFrame("BATTLE FIELD");
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.getContentPane().add(this);
+		frame.getContentPane().add(choseTank());
+
 		frame.pack();
 		frame.setVisible(true);
 	}
 
-	void runTheGame() throws Exception {
+
+	void runTheGame() {
 		while (true) {
 
-			if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
-				processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
+			if (isRun) {
+				System.out.println("Tank go");
+				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
+					processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
+				}
+				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
+					processAction(battleField.getDefender().setUp(), battleField.getDefender());
+				}
 			}
-			if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() &&  !eagle.isDestroyed())  {
-				processAction(battleField.getDefender().setUp(), battleField.getDefender());
-			}
+			System.out.println(0);
 		}
 	}
 
-	private void processAction(Action a, Tank t) throws Exception {
+	private void processAction(Action a, Tank t) {
 		if (a == Action.MOVE) {
 			processMove(t);
 		} else if (a == Action.FIRE) {
@@ -51,16 +62,12 @@ public class  ActionField extends JPanel {
 			processTurn();
 		}
 	}
-	private boolean processInterception(Bullet bullet) throws Exception {
+	private boolean processInterception(Bullet bullet)  {
 
 		String quadrantBullet = battleField.getQuadrant(bullet.getX(), bullet.getY());
 		int separator = quadrantBullet.indexOf("_");
 		int y = Integer.parseInt(quadrantBullet.substring(0, separator));
 		int x = Integer.parseInt(quadrantBullet.substring(separator + 1));
-
-//		if (battleField.getAgressor().getX()<0) {
-//			Thread.sleep (3000);
-//			battleField.getAgressor() = new Tiger(battleField, Direction.UP);}
 
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
@@ -119,7 +126,7 @@ public class  ActionField extends JPanel {
 
 	}
 
-	public void processFire(Bullet bullet) throws Exception {
+	public void processFire(Bullet bullet)  {
 		this.bullet = bullet;
 		int step = 1;
 
@@ -127,13 +134,20 @@ public class  ActionField extends JPanel {
 				&& (bullet.getY() >= -15 && bullet.getY() <= 575)) {
 
 			step = getStepBullet(bullet, step);
+            try {
+			moveBullet(bullet, step);}
+			catch (InterruptedException ex) {
 
-			moveBullet(bullet, step);
+			}
 
 			if (processInterception(bullet)) {
 				bullet.destroy();
 				repaint();
-				Thread.sleep(bullet.getSpeed());
+				try {
+					Thread.sleep(bullet.getSpeed());
+				} catch (Exception ex) {
+
+				}
 				if (bullet.isDestroyed()) {
 					break;
 				}
@@ -152,6 +166,7 @@ public class  ActionField extends JPanel {
             bullet.updateX(step);
         }
 		repaint();
+
 		Thread.sleep(bullet.getSpeed());
 	}
 
@@ -165,7 +180,7 @@ public class  ActionField extends JPanel {
 
 
 	
-	public void processMove(Tank tank) throws Exception {
+	public void processMove(Tank tank)  {
 
 		processTurn();
 		int step = getStepTank(tank);
@@ -192,26 +207,34 @@ public class  ActionField extends JPanel {
 		return step;
 	}
 
-	private void moveUpDown(int step, Tank tank)	throws Exception {
+	private void moveUpDown(int step, Tank tank){
 		int covered = 0;
 
 		while (covered < 64) {
 
 			tank.updateY(step);
 			repaint();
-			Thread.sleep(tank.getSpeed());
+			try {
+			Thread.sleep(tank.getSpeed()); }
+			catch (Exception ex) {
+
+			}
 			covered += 1;
 		}
 	}
 	
-	private void moveLeftRight(int step, Tank tank) throws Exception {
+	private void moveLeftRight(int step, Tank tank)  {
 		int covered = 0;
 		
 		while (covered < 64) {
 
 			tank.updateX(step);
 			repaint();
-			Thread.sleep(tank.getSpeed());
+			try {
+				Thread.sleep(tank.getSpeed());
+			}catch (Exception ex) {
+
+			}
 			covered += 1;
 		}
 
@@ -276,6 +299,64 @@ public class  ActionField extends JPanel {
 
 
 	}
+	private JPanel choseTank () {
+        String[] tanks = {"BT7", "Tiger", "T34"};
+
+
+        JPanel pan = new JPanel();
+        pan.setLayout(new GridBagLayout());
+
+        JLabel choise = new JLabel("Chose the tank");
+        pan.add(choise, new GridBagConstraints(0, 0, 1, 1, 0, 0,GridBagConstraints.LINE_START, GridBagConstraints.NONE, new Insets(0,0,0,0), 0,0));
+
+        ButtonGroup bg = new ButtonGroup();
+
+        JPanel radioPanel = new JPanel();
+
+        radioPanel.setLayout(new GridLayout(3, 0));
+        ActionListener rbListener = new RBListener();
+
+        for(int i=0; i<tanks.length; i++) {
+           JRadioButton tank  = new JRadioButton(tanks[i]);
+            if (i==0) {
+                tank.setSelected(true);
+            }
+            radioPanel.add(tank);
+            bg.add(tank);
+            tank.setActionCommand(String.valueOf(i));
+            tank.addActionListener(rbListener);
+
+        }
+
+        pan.add(radioPanel, new GridBagConstraints(0, 1, 1, 1, 0, 0,GridBagConstraints.LINE_START, GridBagConstraints.NONE, new Insets(0,0,0,0), 0,0));
+
+        JButton ok = new JButton("OK");
+        pan.add(ok,new GridBagConstraints(0, 2, 1, 1, 0, 0,GridBagConstraints.LINE_START, GridBagConstraints.NONE, new Insets(0,0,0,0), 0,0));
+
+        ok.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+				frame.getContentPane().removeAll();
+				battleField = new BattleField(agressorID);
+				isRun = true;
+				frame.getContentPane().add(ActionField.this);
+				frame.setVisible(true);
+				frame.pack();
+
+			}
+        });
+
+
+		return pan;
+	}
+    private class RBListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            agressorID = Integer.parseInt(e.getActionCommand());
+
+		}
+    }
 
 }
 

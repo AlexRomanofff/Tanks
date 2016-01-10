@@ -27,6 +27,7 @@ public abstract class AbstraktTank implements Tank{
 	private int quadrantYEnemy;
 	private int step = 1;
 
+
 	public int getStep() {
 		return step;
 	}
@@ -198,10 +199,7 @@ public abstract class AbstraktTank implements Tank{
 	}
 
 	private boolean checkBorders(int vert, int hor) {
-		if ((hor > 8 || hor < 0) || (vert > 8 || vert < 0)) {
-			return true;
-		}
-		return false;
+		return ((hor > 8 || hor < 0) || (vert > 8 || vert < 0));
 	}
 
 	private Drawable getEnemy() {
