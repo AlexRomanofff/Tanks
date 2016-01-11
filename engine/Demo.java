@@ -9,7 +9,6 @@ public class Demo {
 //        tg.startWindow();
 
             ActionField af = new ActionField();
-
             af.runTheGame();
 
 

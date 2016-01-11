@@ -18,10 +18,10 @@ public class  ActionField extends JPanel {
 	private Bullet bullet;
     private BFObject eagle;
 	private int agressorID;
-	JFrame frame;
-	boolean isRun = false;
+	private JFrame frame;
+	private boolean isRun = false;
 
-	public ActionField (){
+	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
 		battleField = new BattleField(agressorID);
 		bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
@@ -30,18 +30,32 @@ public class  ActionField extends JPanel {
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.getContentPane().add(choseTank());
+		frame.getContentPane().add(startWindow());
 
 		frame.pack();
 		frame.setVisible(true);
 	}
 
 
-	void runTheGame() {
+	void runTheGame() throws InterruptedException {
 		while (true) {
-
 			if (isRun) {
-				System.out.println("Tank go");
+				System.out.println("tanks move");
+				if ((battleField.getAgressor().isDestroyed() || battleField.getDefender().isDestroyed() || eagle.isDestroyed())) {
+					Thread.sleep(1000);
+					String winner;
+					if (battleField.getAgressor().isDestroyed()) {
+						winner = "Defender";
+					} else {
+						winner = "Agressor";
+					}
+					frame.getContentPane().removeAll();
+					frame.getContentPane().add(endGame(winner));
+					frame.setVisible(true);
+					frame.pack();
+					isRun = false;
+
+				}
 				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
 					processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
 				}
@@ -49,11 +63,11 @@ public class  ActionField extends JPanel {
 					processAction(battleField.getDefender().setUp(), battleField.getDefender());
 				}
 			}
-			System.out.println(0);
+			System.out.println(" ");
 		}
 	}
 
-	private void processAction(Action a, Tank t) {
+	private void processAction(Action a, Tank t) throws InterruptedException {
 		if (a == Action.MOVE) {
 			processMove(t);
 		} else if (a == Action.FIRE) {
@@ -126,7 +140,7 @@ public class  ActionField extends JPanel {
 
 	}
 
-	public void processFire(Bullet bullet)  {
+	public void processFire(Bullet bullet) throws InterruptedException {
 		this.bullet = bullet;
 		int step = 1;
 
@@ -134,24 +148,18 @@ public class  ActionField extends JPanel {
 				&& (bullet.getY() >= -15 && bullet.getY() <= 575)) {
 
 			step = getStepBullet(bullet, step);
-            try {
-			moveBullet(bullet, step);}
-			catch (InterruptedException ex) {
 
-			}
+			moveBullet(bullet, step);
 
 			if (processInterception(bullet)) {
 				bullet.destroy();
 				repaint();
-				try {
-					Thread.sleep(bullet.getSpeed());
-				} catch (Exception ex) {
 
-				}
+				Thread.sleep(bullet.getSpeed());
+
 				if (bullet.isDestroyed()) {
 					break;
 				}
-
 			}
 		}
 	}
@@ -180,7 +188,7 @@ public class  ActionField extends JPanel {
 
 
 	
-	public void processMove(Tank tank)  {
+	public void processMove(Tank tank) throws InterruptedException {
 
 		processTurn();
 		int step = getStepTank(tank);
@@ -207,34 +215,27 @@ public class  ActionField extends JPanel {
 		return step;
 	}
 
-	private void moveUpDown(int step, Tank tank){
+	private void moveUpDown(int step, Tank tank) throws InterruptedException {
 		int covered = 0;
 
 		while (covered < 64) {
 
 			tank.updateY(step);
 			repaint();
-			try {
-			Thread.sleep(tank.getSpeed()); }
-			catch (Exception ex) {
+			Thread.sleep(tank.getSpeed());
 
-			}
 			covered += 1;
 		}
 	}
 	
-	private void moveLeftRight(int step, Tank tank)  {
+	private void moveLeftRight(int step, Tank tank) throws InterruptedException  {
 		int covered = 0;
-		
-		while (covered < 64) {
 
+		while (covered < 64) {
 			tank.updateX(step);
 			repaint();
-			try {
 				Thread.sleep(tank.getSpeed());
-			}catch (Exception ex) {
 
-			}
 			covered += 1;
 		}
 
@@ -299,7 +300,7 @@ public class  ActionField extends JPanel {
 
 
 	}
-	private JPanel choseTank () {
+	private JPanel startWindow() {
         String[] tanks = {"BT7", "Tiger", "T34"};
 
 
@@ -318,19 +319,20 @@ public class  ActionField extends JPanel {
 
         for(int i=0; i<tanks.length; i++) {
            JRadioButton tank  = new JRadioButton(tanks[i]);
-            if (i==0) {
-                tank.setSelected(true);
-            }
-            radioPanel.add(tank);
-            bg.add(tank);
+
             tank.setActionCommand(String.valueOf(i));
             tank.addActionListener(rbListener);
+			if (i==0) {
+				tank.setSelected(true);
+			}
+			bg.add(tank);
+			radioPanel.add(tank);
 
         }
 
         pan.add(radioPanel, new GridBagConstraints(0, 1, 1, 1, 0, 0,GridBagConstraints.LINE_START, GridBagConstraints.NONE, new Insets(0,0,0,0), 0,0));
 
-        JButton ok = new JButton("OK");
+        JButton ok = new JButton("Start Game");
         pan.add(ok,new GridBagConstraints(0, 2, 1, 1, 0, 0,GridBagConstraints.LINE_START, GridBagConstraints.NONE, new Insets(0,0,0,0), 0,0));
 
         ok.addActionListener(new ActionListener() {
@@ -343,17 +345,67 @@ public class  ActionField extends JPanel {
 				frame.getContentPane().add(ActionField.this);
 				frame.setVisible(true);
 				frame.pack();
-
 			}
         });
+		return pan;
+	}
+
+	private JPanel endGame(String winner) {
+		String label = winner+" has won";
+
+		JPanel pan = new JPanel();
+		pan.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridheight = 1;
+		c.gridwidth = 1;
+		c.weightx = 0;
+		c.anchor = GridBagConstraints.NORTH;
+		c.fill = GridBagConstraints.BOTH;
+		c.insets = new Insets(0,30,10,0);
+		c.ipadx = 0;
+		c.ipady = 0;
+
+		JLabel end = new JLabel(label);
+		pan.add(end,c);
+
+		JButton newGame = new JButton("New Game");
+		c.gridy = 1;
+		c.insets = new Insets(0,0,0,0);
+		pan.add(newGame, c);
+
+		JButton exitGame = new JButton("Exit");
+		c.gridx = 1;
+		pan.add(exitGame ,c);
+
+		exitGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+
+		newGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				agressorID = 0;
+				frame.getContentPane().removeAll();
+				frame.getContentPane().add(startWindow());
+				frame.setVisible(true);
+				frame.pack();
+			}
+		});
 
 
 		return pan;
+
 	}
     private class RBListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             agressorID = Integer.parseInt(e.getActionCommand());
+			System.out.println(agressorID);
 
 		}
     }
