@@ -1,6 +1,7 @@
 package movelableObjects;
 
 import fieldObjects.BattleField;
+import fieldObjects.Eagle;
 import fieldObjects.Rock;
 import fieldObjects.Water;
 import interfaces.Drawable;
@@ -26,6 +27,7 @@ public abstract class AbstraktTank implements Tank{
 	private int quadrantXEnemy;
 	private int quadrantYEnemy;
 	private int step = 1;
+	public final int quadrantSize  = 64;
 
 
 	public int getStep() {
@@ -34,7 +36,7 @@ public abstract class AbstraktTank implements Tank{
 
 	public AbstraktTank(BattleField bf) {
 
-		this(bf, 192, 0, Direction.DOWN);
+		this(bf, 0, 0, Direction.DOWN);
 
 		}
 
@@ -143,6 +145,10 @@ public abstract class AbstraktTank implements Tank{
 		destroyed = true;
 	}
 
+	public Object getAction () {
+		return null;
+	}
+
 	public void draw(Graphics g) {
 		Graphics2D g2D = (Graphics2D) g;
 		if (!destroyed) {
@@ -168,6 +174,18 @@ public abstract class AbstraktTank implements Tank{
 				 });
 			 }
 		}
+	}
+	public Action setUp() {
+
+		Object o = getAction();
+		if (o instanceof Direction){
+			Direction direction = (Direction)o;
+			turn(direction);
+			return Action.TURNING;
+		} else {
+			return (Action) o;}
+
+
 	}
 	public String getOpponent () {
 		String quadrantOpponent = bf.getQuadrant(bf.getAgressor().getX(), bf.getAgressor().getY());
@@ -229,10 +247,11 @@ public abstract class AbstraktTank implements Tank{
 		}
 		int step = 1;
 		while (!(distance == 0)) {
+            if ((this instanceof T34 && checkEagleOnFireLine(step))
+			|| (!(this instanceof T34) && checkRockOnFireLine(step))){
+					return false;
 
-			if (checkNextQuadrant(necessaryDirection(), step) instanceof Rock) {
-				return false;
-			} else {
+			}else {
 				step++;
 				if (distance < 0) {
 					distance++;
@@ -242,6 +261,14 @@ public abstract class AbstraktTank implements Tank{
 			}
 		}
 		return true;
+	}
+
+	private boolean checkRockOnFireLine(int step) {
+		return checkNextQuadrant(necessaryDirection(), step) instanceof Rock;
+	}
+
+	private boolean checkEagleOnFireLine(int step) {
+		return checkNextQuadrant(necessaryDirection(), step) instanceof Eagle;
 	}
 
 	public boolean checkPresenceTankOnLine (String enemyCoord) {

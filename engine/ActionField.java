@@ -16,16 +16,15 @@ public class  ActionField extends JPanel {
 	
 	private BattleField battleField;
 	private Bullet bullet;
-    private BFObject eagle;
 	private int agressorID;
 	private JFrame frame;
 	private boolean isRun = false;
+
 
 	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
 		battleField = new BattleField(agressorID);
 		bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
-		eagle = battleField.fieldObjects[8][4];
 
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
@@ -41,7 +40,7 @@ public class  ActionField extends JPanel {
 		while (true) {
 			if (isRun) {
 				System.out.println("tanks move");
-				if ((battleField.getAgressor().isDestroyed() || battleField.getDefender().isDestroyed() || eagle.isDestroyed())) {
+				if ((battleField.getAgressor().isDestroyed() || battleField.getDefender().isDestroyed() || battleField.getEagle().isDestroyed())) {
 					Thread.sleep(1000);
 					String winner;
 					if (battleField.getAgressor().isDestroyed()) {
@@ -49,22 +48,26 @@ public class  ActionField extends JPanel {
 					} else {
 						winner = "Agressor";
 					}
-					frame.getContentPane().removeAll();
-					frame.getContentPane().add(endGame(winner));
-					frame.setVisible(true);
-					frame.pack();
-					isRun = false;
+					displayingEndScreen(winner);
 
 				}
-				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
+				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed()) {
 					processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
 				}
-				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !eagle.isDestroyed()) {
+				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed()) {
 					processAction(battleField.getDefender().setUp(), battleField.getDefender());
 				}
 			}
-			System.out.println(" ");
+			Thread.sleep(10);
 		}
+	}
+
+	private void displayingEndScreen(String winner) {
+		frame.getContentPane().removeAll();
+		frame.getContentPane().add(endGame(winner));
+		frame.setVisible(true);
+		frame.pack();
+		isRun = false;
 	}
 
 	private void processAction(Action a, Tank t) throws InterruptedException {
@@ -343,6 +346,12 @@ public class  ActionField extends JPanel {
 				battleField = new BattleField(agressorID);
 				isRun = true;
 				frame.getContentPane().add(ActionField.this);
+//				try {
+//					runTheGame();
+//				} catch (InterruptedException ex) {
+//					ex.printStackTrace();
+//				}
+
 				frame.setVisible(true);
 				frame.pack();
 			}
@@ -405,8 +414,6 @@ public class  ActionField extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             agressorID = Integer.parseInt(e.getActionCommand());
-			System.out.println(agressorID);
-
 		}
     }
 

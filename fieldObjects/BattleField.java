@@ -13,17 +13,18 @@ public class BattleField {
 	private boolean COLORDED_MODE = false;
 	private Tank agressor;
 	private Tank defender;
+	private AbstractBFObject eagle;
 
 	public String[][] battleField = {
 			{ " ", "B", "B", " ", " ", " ", "B", "B", "W" },
-			{ "B", "B", "B", "W", "R", " ", "B", "B", "W" },
+			{ "B", "B", "B", " ", "R", " ", "B", "B", "W" },
 			{ "B", "B", " ", "W", " ", " ", " ", "B", "W" },
 			{ "B", "B", " ", "W", " ", " ", " ", " ", " " },
 			{ " ", " ", "B", "R", "B", "B", " ", " ", " " },
 			{ "R", " ", "R", "R", "R", "R", " ", " ", "R" },
-			{ "R", " ", " ", "W", "W", "W", " ", " ", "R" },
+			{ "R", " ", " ", "B", "W", "W", " ", " ", "R" },
 			{ "B", "R", " ", " ", " ", " ", " ", " ", "B" },
-			{ " ", "B", "B", "B", "E", " ", " ", "B", "W" },
+			{ " ", "B", "B", " ", "E", " ", " ", "B", "W" },
 
 	};
 
@@ -43,7 +44,8 @@ public class BattleField {
 
 		fillGameField();
 		agressor = setAgressor(agressorId);
-		defender = new Tiger(this, 384, 512, Direction.UP);
+		defender = new T34(this, 320, 512, Direction.UP);
+		eagle = scanQuadrant(8,4);
 	}
 
 
@@ -85,6 +87,10 @@ public class BattleField {
 
 		drawWindow(g);
         drawObjects(g);
+	}
+
+	public AbstractBFObject getEagle() {
+		return eagle;
 	}
 
 	private void drawWindow(Graphics g) {

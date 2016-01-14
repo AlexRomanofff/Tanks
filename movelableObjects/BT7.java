@@ -28,22 +28,26 @@ public class BT7 extends AbstraktTank {
 
 	public Action setUp() {
 
-        Object o = chooseAction();
+        Object o = getAction();
 		if (o instanceof Direction){
 			Direction direction = (Direction)o;
 			turn(direction);
 			return Action.TURNING;
 		} else {
 		return (Action) o;}
+//		return Action.NONE;
 
 	}
-
-	private Object chooseAction() {
+    @Override
+	public Object getAction() {
 
 		if (checkPresenceTankOnLine(EAGLE_QUADRANT)&& abilityFire(EAGLE_QUADRANT)) {
 			return setNecessaryDirection();
 		}
+		return getActionForBT7();
+	}
 
+	private Object getActionForBT7() {
 		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
 		if (getDirection() != Direction.DOWN) {
 			if ((checkNextQuadrant(Direction.DOWN, getStep()) instanceof Brick || (checkNextQuadrant(Direction.DOWN, getStep()) instanceof Empty))) {

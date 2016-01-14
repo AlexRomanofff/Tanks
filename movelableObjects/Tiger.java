@@ -49,14 +49,7 @@ public class Tiger extends AbstraktTank {
    }
 
 	public Action setUp() {
-
-		Object o = chooseAction();
-		if (o instanceof Direction){
-			Direction direction = (Direction)o;
-			turn(direction);
-			return Action.TURNING;
-		} else {
-			return (Action) o;}
+     return super.setUp();
 
 	}
 	private void setImages () {
@@ -109,7 +102,8 @@ public class Tiger extends AbstraktTank {
 			}
 		}
 	}
-	private Object chooseAction() {
+	@Override
+	public Object getAction() {
 		generalDirection();
 
 		if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
