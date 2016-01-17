@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Stack;
 
 
 public class Tiger extends AbstraktTank {
@@ -104,26 +105,30 @@ public class Tiger extends AbstraktTank {
 	}
 	@Override
 	public Object getAction() {
-		generalDirection();
+//		generalDirection();
 
 		if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
 			return setNecessaryDirection();
-		}
-		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
-		if (getDirection() != directions[0] ) {
-			if ((checkNextQuadrant(directions[0], getStep()) instanceof Brick || (checkNextQuadrant(directions[0], getStep()) instanceof Empty))) {
-				return directions[0];
-			}
-		}
-		if (fObj == null || fObj instanceof Water || fObj instanceof Rock) {
-			return adaptationDirection();
-
-		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
-			return Action.FIRE;
-
 		} else {
-			return Action.MOVE;
+			Stack<String> way = choseShortestWay(getOpponent());
+			return moveToNextQuadrant(way.peek());
 		}
+
+//		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
+//		if (getDirection() != directions[0] ) {
+//			if ((checkNextQuadrant(directions[0], getStep()) instanceof Brick || (checkNextQuadrant(directions[0], getStep()) instanceof Empty))) {
+//				return directions[0];
+//			}
+//		}
+//		if (fObj == null || fObj instanceof Water || fObj instanceof Rock) {
+//			return adaptationDirection();
+//
+//		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
+//			return Action.FIRE;
+//
+//		} else {
+//			return Action.MOVE;
+//		}
 	}
 
 	private Direction adaptationDirection() {

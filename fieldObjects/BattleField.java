@@ -17,12 +17,12 @@ public class BattleField {
 
 	public String[][] battleField = {
 			{ " ", "B", "B", " ", " ", " ", "B", "B", "W" },
-			{ "B", "B", "B", " ", "R", " ", "B", "B", "W" },
+			{ "B", "B", "B", " ", "B", " ", "B", "B", "W" },
 			{ "B", "B", " ", "W", " ", " ", " ", "B", "W" },
-			{ "B", "B", " ", "W", " ", " ", " ", " ", " " },
+			{ "B", "B", " ", "W", "B", " ", " ", " ", " " },
 			{ " ", " ", "B", "R", "B", "B", " ", " ", " " },
-			{ "R", " ", "R", "R", "R", "R", " ", " ", "R" },
-			{ "R", " ", " ", "B", "W", "W", " ", " ", "R" },
+			{ "R", "R", "R", "R", "R", "R", "R", " ", "R" },
+			{ "B", " ", "R", "B", "W", "W", " ", " ", "R" },
 			{ "B", "R", " ", " ", " ", " ", " ", " ", "B" },
 			{ " ", "B", "B", " ", "E", " ", " ", "B", "W" },
 
@@ -44,7 +44,7 @@ public class BattleField {
 
 		fillGameField();
 		agressor = setAgressor(agressorId);
-		defender = new T34(this, 320, 512, Direction.UP);
+		defender = new T34(this, 320, 512, Direction.RIGHT);
 		eagle = scanQuadrant(8,4);
 	}
 

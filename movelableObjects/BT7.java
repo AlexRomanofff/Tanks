@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Stack;
 
 public class BT7 extends AbstraktTank {
 	private final int eagleH = 4;
@@ -27,17 +28,9 @@ public class BT7 extends AbstraktTank {
 
 
 	public Action setUp() {
-
-        Object o = getAction();
-		if (o instanceof Direction){
-			Direction direction = (Direction)o;
-			turn(direction);
-			return Action.TURNING;
-		} else {
-		return (Action) o;}
-//		return Action.NONE;
-
+			return super.setUp();
 	}
+
     @Override
 	public Object getAction() {
 
@@ -48,24 +41,27 @@ public class BT7 extends AbstraktTank {
 	}
 
 	private Object getActionForBT7() {
-		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
-		if (getDirection() != Direction.DOWN) {
-			if ((checkNextQuadrant(Direction.DOWN, getStep()) instanceof Brick || (checkNextQuadrant(Direction.DOWN, getStep()) instanceof Empty))) {
-				return Direction.DOWN;
-			}
-		}
-		if (fObj == null) {
-			return adaptationDirection();
+//		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
+//		if (getDirection() != Direction.DOWN) {
+//			if ((checkNextQuadrant(Direction.DOWN, getStep()) instanceof Brick || (checkNextQuadrant(Direction.DOWN, getStep()) instanceof Empty))) {
+//				return Direction.DOWN;
+//			}
+//		}
+//		if (fObj == null) {
+//			return adaptationDirection();
+//
+//		} else if (fObj instanceof Water || fObj instanceof Rock) {
+//			return adaptationDirection();
+//
+//		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
+//			return Action.FIRE;
+//
+//		} else {
+//			return Action.MOVE;
+//		}
 
-		} else if (fObj instanceof Water || fObj instanceof Rock) {
-			return adaptationDirection();
-
-		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
-			return Action.FIRE;
-
-		} else {
-			return Action.MOVE;
-		}
+		Stack<String> way = choseShortestWay(EAGLE_QUADRANT);
+		return moveToNextQuadrant(way.peek());
 	}
 
 	private Direction adaptationDirection () {

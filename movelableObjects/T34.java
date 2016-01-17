@@ -42,6 +42,7 @@ public class T34 extends AbstraktTank {
     @Override
     public Object getAction() {
 
+
         if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
             return setNecessaryDirection();
         } else {
@@ -78,6 +79,7 @@ public class T34 extends AbstraktTank {
                 return Action.MOVE; }
             }
         }
+//        return Action.FIRE;
     }
 
 }

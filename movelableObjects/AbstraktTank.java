@@ -1,14 +1,13 @@
 package movelableObjects;
 
-import fieldObjects.BattleField;
-import fieldObjects.Eagle;
-import fieldObjects.Rock;
-import fieldObjects.Water;
+import engine.PathWay;
+import fieldObjects.*;
 import interfaces.Drawable;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.util.Random;
+import java.util.Stack;
 
 public abstract class AbstraktTank implements Tank{
 
@@ -296,5 +295,50 @@ public abstract class AbstraktTank implements Tank{
 				dir = Direction.DOWN;
 			}
 		}return dir;
+	}
+	public Stack choseShortestWay (String enemy) {
+		String myCoord = bf.getQuadrant(getX(), getY());
+		PathWay pathWay = new PathWay(bf.battleField, myCoord, enemy);
+		return pathWay.getPath();
+	}
+
+	public Object moveToNextQuadrant (String coord) {
+		int coordY = Integer.parseInt(coord.substring(0,1));
+		int coordX = Integer.parseInt(coord.substring(2));
+		String myCoord = bf.getQuadrant(getX(), getY());
+		int myX = Integer.parseInt(myCoord.substring(2));
+		int myY = Integer.parseInt(myCoord.substring(0, 1));
+
+		Direction dir = choseDirection(coordY, coordX, myX, myY);
+
+		if (getDirection() == dir) {
+
+			return checkNextQuadrant(coordY, coordX);
+
+		} else {
+		  return dir;
+		}
+	}
+
+	private Object checkNextQuadrant(int coordY, int coordX) {
+		if (bf.scanQuadrant(coordY, coordX) instanceof Empty) {
+            return Action.MOVE;
+        } else {
+            return Action.FIRE;
+        }
+	}
+
+	private Direction choseDirection(int coordY, int coordX, int myX, int myY) {
+		Direction nessecaryDirection;
+
+		if (coordX - myX < 0) {
+			nessecaryDirection = Direction.LEFT;
+		} else if (coordX - myX > 0) {
+			nessecaryDirection = Direction.RIGHT;
+		} else if (coordY - myY < 0) {
+			nessecaryDirection = Direction.UP;
+		} else {
+			nessecaryDirection = Direction.DOWN;
+		} return nessecaryDirection;
 	}
 }
