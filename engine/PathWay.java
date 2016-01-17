@@ -61,14 +61,14 @@ public class PathWay {
                                 field[v+ STEP][h] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-
+                            ex.printStackTrace();
                         }
                         try {
                             if (field[v][h + STEP] == FREE_WAY) {
                                 field[v][h + STEP] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-
+                            ex.printStackTrace();
 
                         }
                         try {
@@ -76,13 +76,14 @@ public class PathWay {
                                 field[v - STEP][h] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-
+                             ex.printStackTrace();
                         }
                         try {
                             if (field[v][h - STEP] == FREE_WAY) {
                                 field[v][h - STEP] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
+                            ex.printStackTrace();
                         }
 
                     }

@@ -5,7 +5,7 @@ import java.awt.*;
 import interfaces.*;
 public class Bullet implements Destroyable, Drawable {
 	
-	private int speed = 5;
+	private int speed;
 	private int x;
 	private int y;
 	private Direction direction;
@@ -13,9 +13,10 @@ public class Bullet implements Destroyable, Drawable {
 	private Tank tank;
 	
 	public Bullet (int x, int y, Direction direction, Tank tank) {
+		speed = 5;
 		this.x = x;
 		this.y = y;
-		this.direction = tank.getDirection();
+		this.direction = direction;
 		this.tank = tank;
 		isDestroyed = false;
 	}

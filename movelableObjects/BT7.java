@@ -1,7 +1,6 @@
 package movelableObjects;
 
 import fieldObjects.*;
-import interfaces.Drawable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -10,7 +9,7 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class BT7 extends AbstraktTank {
-	private final int eagleH = 4;
+	private static final int eagleH = 4;
 	private final String EAGLE_QUADRANT = "8_4";
 
 	public BT7 (BattleField bf) {

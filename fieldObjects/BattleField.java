@@ -8,8 +8,8 @@ import java.awt.*;
 
 public class BattleField {
 	
-	private final int BF_WIDTH = 576;
-	private final int BF_HEIGHT = 576;
+	private static final int BF_WIDTH = 576;
+	private static final int BF_HEIGHT = 576;
 	private boolean COLORDED_MODE = false;
 	private Tank agressor;
 	private Tank defender;

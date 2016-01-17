@@ -1,7 +1,7 @@
 package movelableObjects;
 
 import fieldObjects.*;
-import interfaces.Drawable;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -43,7 +43,6 @@ public class Tiger extends AbstraktTank {
    public void destroy() {
 	   if (getArmor() == 1) {
 		   setArmor(0);
-		   return;
 	   } else {
 		   super.destroy();
 	   }
