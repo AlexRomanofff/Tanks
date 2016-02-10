@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.io.*;
 
 
 public class  ActionField extends JPanel {
@@ -78,6 +78,8 @@ public class  ActionField extends JPanel {
 		} else if (a == Action.TURNING){
 			processTurn();
 		}
+		recordAction(a.toString(), t);
+
 	}
 	private boolean processInterception(Bullet bullet)  {
 
@@ -346,12 +348,6 @@ public class  ActionField extends JPanel {
 				battleField = new BattleField(agressorID);
 				isRun = true;
 				frame.getContentPane().add(ActionField.this);
-//				try {
-//					runTheGame();
-//				} catch (InterruptedException ex) {
-//					ex.printStackTrace();
-//				}
-
 				frame.setVisible(true);
 				frame.pack();
 			}
@@ -416,7 +412,19 @@ public class  ActionField extends JPanel {
             agressorID = Integer.parseInt(e.getActionCommand());
 		}
     }
-
+	private void recordAction (String Action, Tank t) {
+		     PrintStream ps = null;
+		try {
+			OutputStream os = new FileOutputStream("recordAction.txt", true);
+			BufferedOutputStream bos = new BufferedOutputStream(os);
+			ps = new PrintStream(bos, true);
+			System.setOut(ps);
+		} catch (IOException iox) {
+			iox.printStackTrace();
+		}
+		System.out.println("Tank "+ t.getClass().getSimpleName()+" " +Action);
+		ps.close();
+	}
 }
 
 
