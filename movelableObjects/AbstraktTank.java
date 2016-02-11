@@ -156,7 +156,7 @@ public abstract class AbstraktTank implements Tank{
 
 					 g2D.setComposite(AlphaComposite.getInstance(
 						 AlphaComposite.SRC_OVER, 0.3f));
-				 g2D.drawImage(images[getDirection().getID()], getX(), getY(), new ImageObserver() {
+				     g2D.drawImage(images[getDirection().getID()], getX(), getY(), new ImageObserver() {
 					 @Override
 					 public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
 						 return false;
