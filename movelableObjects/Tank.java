@@ -15,6 +15,8 @@ public interface Tank extends Drawable, Destroyable {
 
     public int getY();
 
+    public void turn(Direction direction);
+
     public Direction getDirection();
 
     public void updateX(int x);

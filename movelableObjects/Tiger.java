@@ -103,7 +103,7 @@ public class Tiger extends AbstraktTank {
 		}
 	}
 	@Override
-	public Object getAction() {
+	public Action getAction() {
 //		generalDirection();
 
 		if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {

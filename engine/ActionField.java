@@ -10,6 +10,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.*;
+import java.util.List;
 
 
 public class  ActionField extends JPanel {
@@ -18,13 +20,19 @@ public class  ActionField extends JPanel {
 	private Bullet bullet;
 	private int agressorID;
 	private JFrame frame;
-	private boolean isRun = false;
+	private boolean isRun;
+	private boolean isRecord;
+	private File file;
+	private List<Action> recordingActions;
+	private List<Action> readingActions;
 
 
 	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
 		battleField = new BattleField(agressorID);
 		bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
+        recordingActions = new ArrayList<>();
+        readingActions = new ArrayList<>();
 
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
@@ -33,33 +41,60 @@ public class  ActionField extends JPanel {
 
 		frame.pack();
 		frame.setVisible(true);
+		file = new File("recordAction.txt");
+		if(file.exists()) {
+			file.delete();
+			try {
+			file.createNewFile();}
+			catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 
 
 	void runTheGame() throws InterruptedException {
 		while (true) {
 			if (isRun) {
-				System.out.println("tanks move");
+
 				if ((battleField.getAgressor().isDestroyed() || battleField.getDefender().isDestroyed() || battleField.getEagle().isDestroyed())) {
 					Thread.sleep(1000);
 					String winner;
 					if (battleField.getAgressor().isDestroyed()) {
-						winner = "Defender";
+						winner = "Defender has won";
 					} else {
-						winner = "Agressor";
+						winner = "Agressor has won";
 					}
 					displayingEndScreen(winner);
 
 				}
-				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed()) {
+				if (isNotDestroy()) {
 					processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
+
 				}
-				if (!battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed()) {
+				if (isNotDestroy()) {
 					processAction(battleField.getDefender().setUp(), battleField.getDefender());
 				}
 			}
 			Thread.sleep(10);
+			while (isRecord) {
+				battleField = new BattleField(agressorID);
+				while (isNotDestroy()) {
+					processAction(readingActions.get(0), battleField.getAgressor());
+					readingActions.remove(0);
+					if (isNotDestroy()) {
+						processAction(readingActions.get(0), battleField.getDefender());
+						readingActions.remove(0);
+					}
+				}
+				isRecord = false;
+				displayingEndScreen(" ");
+			}
 		}
+	}
+
+	private boolean isNotDestroy() {
+		return !battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed();
 	}
 
 	private void displayingEndScreen(String winner) {
@@ -70,17 +105,34 @@ public class  ActionField extends JPanel {
 		isRun = false;
 	}
 
+
 	private void processAction(Action a, Tank t) throws InterruptedException {
 		if (a == Action.MOVE) {
 			processMove(t);
 		} else if (a == Action.FIRE) {
 			processFire(t.fire());
-		} else if (a == Action.TURNING){
-			processTurn();
-		}
-		recordAction(a.toString(), t);
+		} else setTurn(a, t);
+
+        recordingActions.add(a);
 
 	}
+
+	private void setTurn(Action a, Tank t) {
+		if (a == Action.TURN_UP){
+			t.turn(Direction.UP);
+			processTurn();
+		}else if (a == Action.TURN_DOWN){
+			t.turn(Direction.DOWN);
+			processTurn();
+		}else if (a == Action.TURN_LEFT){
+			t.turn(Direction.LEFT);
+			processTurn();
+		}else if (a == Action.TURN_RIGHT){
+			t.turn(Direction.RIGHT);
+			processTurn();
+		}
+	}
+
 	private boolean processInterception(Bullet bullet)  {
 
 		String quadrantBullet = battleField.getQuadrant(bullet.getX(), bullet.getY());
@@ -356,19 +408,19 @@ public class  ActionField extends JPanel {
 	}
 
 	private JPanel endGame(String winner) {
-		String label = winner+" has won";
+		String label = winner;
 
 		JPanel pan = new JPanel();
 		pan.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
+		c.gridx = 1;
 		c.gridy = 0;
 		c.gridheight = 1;
 		c.gridwidth = 1;
 		c.weightx = 0;
 		c.anchor = GridBagConstraints.NORTH;
 		c.fill = GridBagConstraints.BOTH;
-		c.insets = new Insets(0,30,10,0);
+		c.insets = new Insets(0,0,10,0);
 		c.ipadx = 0;
 		c.ipady = 0;
 
@@ -376,13 +428,18 @@ public class  ActionField extends JPanel {
 		pan.add(end,c);
 
 		JButton newGame = new JButton("New Game");
+		c.gridx = 0;
 		c.gridy = 1;
 		c.insets = new Insets(0,0,0,0);
 		pan.add(newGame, c);
 
 		JButton exitGame = new JButton("Exit");
-		c.gridx = 1;
+		c.gridx = 2;
 		pan.add(exitGame ,c);
+
+		JButton replayGame= new JButton("Replay Game");
+		c.gridx = 1;
+		pan.add(replayGame, c);
 
 		exitGame.addActionListener(new ActionListener() {
 			@Override
@@ -402,7 +459,20 @@ public class  ActionField extends JPanel {
 			}
 		});
 
+        replayGame.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				isRecord = true;
+				recordAction();
+				readActions();
+				recordingActions.clear();
+				frame.getContentPane().removeAll();
+				frame.getContentPane().add(ActionField.this);
+				frame.setVisible(true);
+				frame.pack();
 
+			}
+		});
 		return pan;
 
 	}
@@ -412,18 +482,43 @@ public class  ActionField extends JPanel {
             agressorID = Integer.parseInt(e.getActionCommand());
 		}
     }
-	private void recordAction (String Action, Tank t) {
-		     PrintStream ps = null;
+	private void recordAction () {
+
 		try {
-			OutputStream os = new FileOutputStream("recordAction.txt", true);
-			BufferedOutputStream bos = new BufferedOutputStream(os);
-			ps = new PrintStream(bos, true);
-			System.setOut(ps);
+			FileOutputStream fos = new FileOutputStream("record_Actions");
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+			ObjectOutputStream os = new ObjectOutputStream(bos);
+			for (Action action: recordingActions) {
+				os.writeObject(action);
+			}
+			os.close();
+
 		} catch (IOException iox) {
 			iox.printStackTrace();
 		}
-		System.out.println("Tank "+ t.getClass().getSimpleName()+" " +Action);
-		ps.close();
+
+	}
+	private void readActions() {
+
+		try {
+			FileInputStream fis = new FileInputStream("record_Actions");
+			BufferedInputStream bis = new BufferedInputStream(fis);
+			ObjectInputStream ois = new ObjectInputStream(bis);
+
+			try {while (bis.available()>0) {
+				Action action = (Action) ois.readObject();
+				readingActions.add(action);
+			  }
+				ois.close();
+
+			}catch (ClassNotFoundException ex1) {
+                 ex1.printStackTrace();
+			}
+
+		} catch (IOException ex){
+              ex.printStackTrace();
+		}
 	}
 }
 

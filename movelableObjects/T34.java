@@ -40,7 +40,7 @@ public class T34 extends AbstraktTank {
         return super.setUp();
     }
     @Override
-    public Object getAction() {
+    public Action getAction() {
 
 
         if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
@@ -51,11 +51,11 @@ public class T34 extends AbstraktTank {
         }
     }
 
-    private Object getActionForT34(Direction dir) {
+    private Action getActionForT34(Direction dir) {
         if (getY() == 8 * quadrantSize) {
             if (!(dir == Direction.UP)) {
                 dir = Direction.UP;
-                return dir;
+                return setActionDirection(dir);
             } else {
                 return Action.MOVE;
             }
@@ -66,14 +66,14 @@ public class T34 extends AbstraktTank {
                 } else {
                     dir = Direction.LEFT;
                 }
-                return dir;
+                return setActionDirection(dir);
             } else {
                 if (getX()==5*quadrantSize && (dir==Direction.RIGHT)) {
                     dir = Direction.DOWN;
-                return dir;}
+                return setActionDirection(dir);}
                 else if (getX()==3*quadrantSize && (dir==Direction.LEFT)) {
                     dir= Direction.DOWN;
-                    return dir;
+                    return setActionDirection(dir);
                 } else {
 
                 return Action.MOVE; }

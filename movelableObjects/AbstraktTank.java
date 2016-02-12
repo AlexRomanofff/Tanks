@@ -6,8 +6,8 @@ import interfaces.Drawable;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
-import java.util.Random;
-import java.util.Stack;
+import java.util.*;
+import java.util.List;
 
 public abstract class AbstraktTank implements Tank{
 
@@ -18,6 +18,7 @@ public abstract class AbstraktTank implements Tank{
 	protected BattleField bf;
 	protected Image[] images;
 
+	public List<Object> actions = new ArrayList<>();
 	private String quadrant = randomChoiseQuadrant();
 	private boolean destroyed;
 
@@ -144,7 +145,7 @@ public abstract class AbstraktTank implements Tank{
 		destroyed = true;
 	}
 
-	public Object getAction () {
+	public Action getAction () {
 		return null;
 	}
 
@@ -176,13 +177,14 @@ public abstract class AbstraktTank implements Tank{
 	}
 	public Action setUp() {
 
-		Object o = getAction();
-		if (o instanceof Direction){
-			Direction direction = (Direction)o;
-			turn(direction);
-			return Action.TURNING;
-		} else {
-			return (Action) o;}
+		return getAction();
+//		if (o instanceof Direction){
+//			Direction direction = (Direction)o;
+//			turn(direction);
+//
+//			return Action.TURNING;
+//		} else {
+//			return (Action) o;}
 
 
 	}
@@ -227,15 +229,27 @@ public abstract class AbstraktTank implements Tank{
         }
 	}
 
-	public Object setNecessaryDirection() {
+	public Action setNecessaryDirection() {
 
 		if (getDirection()== necessaryDirection()) {
 				return Action.FIRE;
 			} else {
 				direction= necessaryDirection();
-				return direction;
-
-			}
+			    return setActionDirection(direction);
+		}
+	}
+	public Action setActionDirection (Direction direction) {
+		if (direction==Direction.LEFT) {
+			return Action.TURN_LEFT;
+		}
+		else if (direction==Direction.RIGHT) {
+			return Action.TURN_RIGHT;
+		}
+		else if (direction==Direction.UP) {
+			return Action.TURN_UP;
+		}
+		else{return Action.TURN_DOWN;
+		}
 	}
 
 	public boolean abilityFire(String enemyCoord) {
@@ -296,13 +310,13 @@ public abstract class AbstraktTank implements Tank{
 			}
 		}return dir;
 	}
-	public Stack choseShortestWay (String enemy) {
+	public Stack choseShortestWay (String enemyCoord) {
 		String myCoord = bf.getQuadrant(getX(), getY());
-		PathWay pathWay = new PathWay(bf.battleField, myCoord, enemy);
+		PathWay pathWay = new PathWay(bf.battleField, myCoord, enemyCoord);
 		return pathWay.getPath();
 	}
 
-	public Object moveToNextQuadrant (String coord) {
+	public Action moveToNextQuadrant (String coord) {
 		int coordY = Integer.parseInt(coord.substring(0,1));
 		int coordX = Integer.parseInt(coord.substring(2));
 		String myCoord = bf.getQuadrant(getX(), getY());
@@ -316,11 +330,11 @@ public abstract class AbstraktTank implements Tank{
 			return checkNextQuadrant(coordY, coordX);
 
 		} else {
-		  return dir;
+		  return setActionDirection(dir);
 		}
 	}
 
-	private Object checkNextQuadrant(int coordY, int coordX) {
+	private Action checkNextQuadrant(int coordY, int coordX) {
 		if (bf.scanQuadrant(coordY, coordX) instanceof Empty) {
             return Action.MOVE;
         } else {

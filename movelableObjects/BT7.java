@@ -31,7 +31,7 @@ public class BT7 extends AbstraktTank {
 	}
 
     @Override
-	public Object getAction() {
+	public Action getAction() {
 
 		if (checkPresenceTankOnLine(EAGLE_QUADRANT)&& abilityFire(EAGLE_QUADRANT)) {
 			return setNecessaryDirection();
@@ -39,7 +39,7 @@ public class BT7 extends AbstraktTank {
 		return getActionForBT7();
 	}
 
-	private Object getActionForBT7() {
+	private Action getActionForBT7() {
 //		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
 //		if (getDirection() != Direction.DOWN) {
 //			if ((checkNextQuadrant(Direction.DOWN, getStep()) instanceof Brick || (checkNextQuadrant(Direction.DOWN, getStep()) instanceof Empty))) {
