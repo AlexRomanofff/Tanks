@@ -5,6 +5,8 @@ import interfaces.Drawable;
 import movelableObjects.Action;
 import movelableObjects.Bullet;
 import movelableObjects.*;
+import sun.awt.windows.ThemeReader;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -43,13 +45,31 @@ public class  ActionField extends JPanel {
 		frame.setVisible(true);
 		file = new File("recordAction.txt");
 		if(file.exists()) {
-			file.delete();
-			try {
-			file.createNewFile();}
-			catch (IOException ex) {
-				ex.printStackTrace();
-			}
+			createRecordFile();
 		}
+		Thread thread1 = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Thread.currentThread().sleep(1000 / 60);
+						repaint();
+					} catch (InterruptedException ex) {
+                    //ignore
+					}
+				}
+			}
+		});
+		thread1.start();
+	}
+
+	private void createRecordFile() {
+		file.delete();
+		try {
+        file.createNewFile();}
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
 	}
 
 
@@ -120,16 +140,16 @@ public class  ActionField extends JPanel {
 	private void setTurn(Action a, Tank t) {
 		if (a == Action.TURN_UP){
 			t.turn(Direction.UP);
-			processTurn();
+//			processTurn();
 		}else if (a == Action.TURN_DOWN){
 			t.turn(Direction.DOWN);
-			processTurn();
+//			processTurn();
 		}else if (a == Action.TURN_LEFT){
 			t.turn(Direction.LEFT);
-			processTurn();
+//			processTurn();
 		}else if (a == Action.TURN_RIGHT){
 			t.turn(Direction.RIGHT);
-			processTurn();
+//			processTurn();
 		}
 	}
 
@@ -210,8 +230,7 @@ public class  ActionField extends JPanel {
 
 			if (processInterception(bullet)) {
 				bullet.destroy();
-				repaint();
-
+//				repaint();
 				Thread.sleep(bullet.getSpeed());
 
 				if (bullet.isDestroyed()) {
@@ -230,7 +249,7 @@ public class  ActionField extends JPanel {
 
             bullet.updateX(step);
         }
-		repaint();
+//		repaint();
 
 		Thread.sleep(bullet.getSpeed());
 	}
@@ -278,7 +297,7 @@ public class  ActionField extends JPanel {
 		while (covered < 64) {
 
 			tank.updateY(step);
-			repaint();
+//			repaint();
 			Thread.sleep(tank.getSpeed());
 
 			covered += 1;
@@ -290,7 +309,7 @@ public class  ActionField extends JPanel {
 
 		while (covered < 64) {
 			tank.updateX(step);
-			repaint();
+//			repaint();
 				Thread.sleep(tank.getSpeed());
 
 			covered += 1;
@@ -343,7 +362,7 @@ public class  ActionField extends JPanel {
 	}
 		
 	public void processTurn(){
-		repaint();		
+//		repaint();
 	}
 
 	
@@ -465,6 +484,8 @@ public class  ActionField extends JPanel {
 				isRecord = true;
 				recordAction();
 				readActions();
+				System.out.println(readingActions);
+				System.out.println(recordingActions);
 				recordingActions.clear();
 				frame.getContentPane().removeAll();
 				frame.getContentPane().add(ActionField.this);
@@ -485,6 +506,7 @@ public class  ActionField extends JPanel {
 	private void recordAction () {
 
 		try {
+			createRecordFile();
 			FileOutputStream fos = new FileOutputStream("record_Actions");
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 
@@ -492,6 +514,7 @@ public class  ActionField extends JPanel {
 			for (Action action: recordingActions) {
 				os.writeObject(action);
 			}
+			os.flush();
 			os.close();
 
 		} catch (IOException iox) {
@@ -510,6 +533,7 @@ public class  ActionField extends JPanel {
 				Action action = (Action) ois.readObject();
 				readingActions.add(action);
 			  }
+
 				ois.close();
 
 			}catch (ClassNotFoundException ex1) {
