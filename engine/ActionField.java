@@ -113,8 +113,7 @@ public class  ActionField extends JPanel {
 //	}
 
 
-
-	private Thread agressorThread () {
+	private Thread agressorThread() {
 
 		Thread threadAgressor = new Thread(new Runnable() {
 			@Override
@@ -135,6 +134,7 @@ public class  ActionField extends JPanel {
 		});
 		return threadAgressor;
 	}
+
 	private Thread defenderThread () {
 
 		Thread threadDefender = new Thread(new Runnable() {
@@ -151,14 +151,11 @@ public class  ActionField extends JPanel {
 						}
 					}
 						sleep(16);
-
 				}
 			}
 		});
 		return threadDefender;
 	}
-//
-
 
 	private boolean isNotDestroy() {
 		return !battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed();
@@ -182,11 +179,12 @@ public class  ActionField extends JPanel {
 		System.out.println(t.toString() + a.toString());
 		if (a == Action.MOVE) {
 			processMove(t);
-		} else if (a == Action.FIRE) {
 
+		} else if (a == Action.FIRE) {
 			processFire(t.fire());
 
-		} else { setTurn(a, t);}
+		} else { setTurn(a, t);
+		}
 
 	}
 
@@ -205,7 +203,7 @@ public class  ActionField extends JPanel {
 //			processTurn();
 		}
 		if (t==battleField.getAgressor()) {
-		isActionAgressor=true;
+		    isActionAgressor=true;
 		} else {
 			isActionDefender=true;
 		}
@@ -280,7 +278,7 @@ public class  ActionField extends JPanel {
 			bulletAgressor=bullet;
 			bulletsAgressor.add(bullet);
 		} else {
-			this.bulletDefender = bullet;
+			bulletDefender = bullet;
 			bulletsDefender.add(bullet);
 		}
 
@@ -300,11 +298,10 @@ public class  ActionField extends JPanel {
 						moveBullet(bulletsAgressor.poll());
 						isActionAgressor = true;
 					}
-					}
 				}
-
+			}
 		});
-     return bulletThread;
+		return bulletThread;
 	}
 
 	public Thread bulletDefenderThread() {
@@ -314,6 +311,7 @@ public class  ActionField extends JPanel {
 			@Override
 			public void run() {
 				while (true) {
+
 					if (bulletsDefender.size() < 1) {
 						sleep(10);
 					} else {
@@ -322,7 +320,6 @@ public class  ActionField extends JPanel {
 					}
 				}
 			}
-
 		});
 		return bulletThread;
 	}
