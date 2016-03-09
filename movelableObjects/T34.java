@@ -37,11 +37,13 @@ public class T34 extends AbstraktTank {
     }
 
     public Action setUp() {
-        return super.setUp();
+//        System.out.println("T34:"+ getAction().toString());
+//        return getAction();
+        return Action.FIRE;
+
     }
     @Override
     public Action getAction() {
-
 
         if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
             return setNecessaryDirection();
@@ -79,7 +81,7 @@ public class T34 extends AbstraktTank {
                 return Action.MOVE; }
             }
         }
-//        return Action.FIRE;
+
     }
 
 }

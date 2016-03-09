@@ -5,7 +5,6 @@ import interfaces.Drawable;
 import movelableObjects.Action;
 import movelableObjects.Bullet;
 import movelableObjects.*;
-import sun.awt.windows.ThemeReader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,27 +13,35 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.*;
 
 
 public class  ActionField extends JPanel {
 	
 	private BattleField battleField;
-	private Bullet bullet;
+	private Bullet bulletDefender;
+	private Bullet bulletAgressor;
 	private int agressorID;
 	private JFrame frame;
-	private boolean isRun;
-	private boolean isRecord;
 	private File file;
 	private List<Action> recordingActions;
 	private List<Action> readingActions;
+    private volatile boolean isActionAgressor=true;
+	private volatile boolean isActionDefender = true;
+    private volatile Queue<Bullet> bulletsDefender = new ConcurrentLinkedQueue<>();
+    private volatile Queue<Bullet>bulletsAgressor = new ConcurrentLinkedQueue<>();
+
 
 
 	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
 		battleField = new BattleField(agressorID);
-		bullet = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
+		bulletDefender = new Bullet(-100, -100, Direction.UP, battleField.getAgressor());
+		bulletAgressor = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
+
         recordingActions = new ArrayList<>();
         readingActions = new ArrayList<>();
+
 
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
@@ -47,20 +54,6 @@ public class  ActionField extends JPanel {
 		if(file.exists()) {
 			createRecordFile();
 		}
-		Thread thread1 = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					try {
-						Thread.currentThread().sleep(1000 / 60);
-						repaint();
-					} catch (InterruptedException ex) {
-                    //ignore
-					}
-				}
-			}
-		});
-		thread1.start();
 	}
 
 	private void createRecordFile() {
@@ -73,45 +66,99 @@ public class  ActionField extends JPanel {
 	}
 
 
-	void runTheGame() throws InterruptedException {
-		while (true) {
-			if (isRun) {
+	void runTheGame() {
 
-				if ((battleField.getAgressor().isDestroyed() || battleField.getDefender().isDestroyed() || battleField.getEagle().isDestroyed())) {
-					Thread.sleep(1000);
-					String winner;
-					if (battleField.getAgressor().isDestroyed()) {
-						winner = "Defender has won";
-					} else {
-						winner = "Agressor has won";
-					}
-					displayingEndScreen(winner);
-
-				}
-				if (isNotDestroy()) {
-					processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
-
-				}
-				if (isNotDestroy()) {
-					processAction(battleField.getDefender().setUp(), battleField.getDefender());
-				}
-			}
-			Thread.sleep(10);
-			while (isRecord) {
-				battleField = new BattleField(agressorID);
+		Thread graphicThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
 				while (isNotDestroy()) {
-					processAction(readingActions.get(0), battleField.getAgressor());
-					readingActions.remove(0);
-					if (isNotDestroy()) {
-						processAction(readingActions.get(0), battleField.getDefender());
-						readingActions.remove(0);
-					}
+						sleep(16);
+						repaint();
 				}
-				isRecord = false;
-				displayingEndScreen(" ");
+
+				sleep(500);
+				String winner;
+				if (battleField.getAgressor().isDestroyed()) {
+					battleField.getDefender().destroy();
+					winner = "Defender has won";
+				} else {
+					battleField.getAgressor().destroy();
+					winner = "Agressor has won";
+				}
+				displayingEndScreen(winner);
 			}
-		}
+		});
+
+		graphicThread.start();
+		agressorThread().start();
+		defenderThread().start();
+		bulletAgressorThread().start();
+		bulletDefenderThread().start();
 	}
+//			Thread.sleep(10);
+//			while (isRecord) {
+//				battleField = new BattleField(agressorID);
+//				while (isNotDestroy()) {
+//					processAction(readingActions.get(0), battleField.getAgressor());
+//					readingActions.remove(0);
+//					if (isNotDestroy()) {
+//						processAction(readingActions.get(0), battleField.getDefender());
+//						readingActions.remove(0);
+
+//				}
+//				isRecord = false;
+//				displayingEndScreen(" ");
+//			}
+//		}
+//	}
+
+
+
+	private Thread agressorThread () {
+
+		Thread threadAgressor = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (isNotDestroy()) {
+					if (isActionAgressor) {
+						try {
+
+							processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
+
+						} catch (InterruptedException ex) {
+							//ignore
+						}
+					}
+					sleep(10);
+				}
+			}
+		});
+		return threadAgressor;
+	}
+	private Thread defenderThread () {
+
+		Thread threadDefender = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (isNotDestroy()) {
+					if (isActionDefender) {
+
+						try {
+							processAction(battleField.getDefender().setUp(), battleField.getDefender());
+							sleep(16);
+						} catch (InterruptedException ex) {
+							//ignore
+						}
+					}
+						sleep(16);
+
+				}
+			}
+		});
+		return threadDefender;
+	}
+//
+
 
 	private boolean isNotDestroy() {
 		return !battleField.getAgressor().isDestroyed() && !battleField.getDefender().isDestroyed() && !battleField.getEagle().isDestroyed();
@@ -122,18 +169,24 @@ public class  ActionField extends JPanel {
 		frame.getContentPane().add(endGame(winner));
 		frame.setVisible(true);
 		frame.pack();
-		isRun = false;
+
 	}
 
 
 	private void processAction(Action a, Tank t) throws InterruptedException {
+		if (t==battleField.getAgressor()) {
+			isActionAgressor=false;
+		} else {
+			isActionDefender=false;
+		}
+		System.out.println(t.toString() + a.toString());
 		if (a == Action.MOVE) {
 			processMove(t);
 		} else if (a == Action.FIRE) {
-			processFire(t.fire());
-		} else setTurn(a, t);
 
-        recordingActions.add(a);
+			processFire(t.fire());
+
+		} else { setTurn(a, t);}
 
 	}
 
@@ -151,6 +204,12 @@ public class  ActionField extends JPanel {
 			t.turn(Direction.RIGHT);
 //			processTurn();
 		}
+		if (t==battleField.getAgressor()) {
+		isActionAgressor=true;
+		} else {
+			isActionDefender=true;
+		}
+
 	}
 
 	private boolean processInterception(Bullet bullet)  {
@@ -216,31 +275,79 @@ public class  ActionField extends JPanel {
 		return ((bulletX == tankX)&&(bulletY==tankY));
 
 	}
+	private void processFire (Bullet bullet) {
+		if (bullet.getTank()==battleField.getAgressor()) {
+			bulletAgressor=bullet;
+			bulletsAgressor.add(bullet);
+		} else {
+			this.bulletDefender = bullet;
+			bulletsDefender.add(bullet);
+		}
 
-	public void processFire(Bullet bullet) throws InterruptedException {
-		this.bullet = bullet;
-		int step = 1;
+	}
 
-		while ((bullet.getX() >= -15 && bullet.getX() <= 575)
-				&& (bullet.getY() >= -15 && bullet.getY() <= 575)) {
+	public Thread bulletAgressorThread() {
 
-			step = getStepBullet(bullet, step);
+		Thread bulletThread = new Thread(new Runnable() {
 
-			moveBullet(bullet, step);
+			@Override
+			public void run() {
+				while (true) {
 
-			if (processInterception(bullet)) {
-				bullet.destroy();
-//				repaint();
-				Thread.sleep(bullet.getSpeed());
+					if (bulletsAgressor.size() < 1) {
+						sleep(10);
+					} else {
+						moveBullet(bulletsAgressor.poll());
+						isActionAgressor = true;
+					}
+					}
+				}
 
-				if (bullet.isDestroyed()) {
+		});
+     return bulletThread;
+	}
+
+	public Thread bulletDefenderThread() {
+
+		Thread bulletThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				while (true) {
+					if (bulletsDefender.size() < 1) {
+						sleep(10);
+					} else {
+						moveBullet(bulletsDefender.poll());
+						isActionDefender = true;
+					}
+				}
+			}
+
+		});
+		return bulletThread;
+	}
+
+
+	private void moveBullet(Bullet bullet) {
+		if (bullet!= null) {
+			while ((bullet.getX() >= -15 && bullet.getX() <= 575)
+					&& (bullet.getY() >= -15 && bullet.getY() <= 575)) {
+
+				int step = getStepBullet(bullet);
+
+				moveBullet(bullet, step);
+
+				if (processInterception(bullet)) {
+
+					bullet.destroy();
+
 					break;
 				}
 			}
 		}
 	}
 
-	private void moveBullet(Bullet bullet, int step) throws InterruptedException {
+	private void moveBullet(Bullet bullet, int step){
 		if (bullet.getDirection() == Direction.UP || bullet.getDirection() == Direction.DOWN) {
 
             bullet.updateY(step);
@@ -251,10 +358,18 @@ public class  ActionField extends JPanel {
         }
 //		repaint();
 
-		Thread.sleep(bullet.getSpeed());
+		sleep(bullet.getSpeed());
+	}
+	private void sleep(long timeout) {
+		try {
+			Thread.currentThread().sleep(timeout);
+		} catch (InterruptedException ex) {
+
+		}
 	}
 
-	private int getStepBullet(Bullet bullet, int step) {
+	private int getStepBullet(Bullet bullet) {
+		int step  = 1;
 		if (bullet.getDirection() == Direction.UP || bullet.getDirection() == Direction.LEFT) {
             step = -1;
         }
@@ -266,7 +381,6 @@ public class  ActionField extends JPanel {
 	
 	public void processMove(Tank tank) throws InterruptedException {
 
-		processTurn();
 		int step = getStepTank(tank);
 
 		if (checkRange(tank, tank.getDirection())) {
@@ -275,10 +389,19 @@ public class  ActionField extends JPanel {
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
 
 			moveUpDown(step, tank);
+			if (tank==battleField.getAgressor()) {
+				isActionAgressor=true;
+			} else {
+				isActionDefender=true;
+			}
 			return;
 		}
 		moveLeftRight(step,tank);
-
+		if (tank==battleField.getAgressor()) {
+			isActionAgressor=true;
+		} else {
+			isActionDefender=true;
+		}
 	}
 
 	private int getStepTank(Tank tank) {
@@ -372,7 +495,8 @@ public class  ActionField extends JPanel {
 		battleField.draw(g);
 		battleField.getDefender().draw(g);
 		battleField.getAgressor().draw(g);
-        bullet.draw(g);
+		bulletDefender.draw(g);
+		bulletAgressor.draw(g);
 
 
 	}
@@ -417,10 +541,10 @@ public class  ActionField extends JPanel {
 
 				frame.getContentPane().removeAll();
 				battleField = new BattleField(agressorID);
-				isRun = true;
 				frame.getContentPane().add(ActionField.this);
 				frame.setVisible(true);
 				frame.pack();
+				runTheGame();
 			}
         });
 		return pan;
@@ -481,7 +605,6 @@ public class  ActionField extends JPanel {
         replayGame.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				isRecord = true;
 				recordAction();
 				readActions();
 				System.out.println(readingActions);

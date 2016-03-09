@@ -61,29 +61,28 @@ public class PathWay {
                                 field[v+ STEP][h] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-                            ex.printStackTrace();
+                            //ignore
                         }
                         try {
                             if (field[v][h + STEP] == FREE_WAY) {
                                 field[v][h + STEP] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-                            ex.printStackTrace();
-
+                             //ignore
                         }
                         try {
                             if (field[v - STEP][h] == FREE_WAY) {
                                 field[v - STEP][h] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-                             ex.printStackTrace();
+                            //ignore
                         }
                         try {
                             if (field[v][h - STEP] == FREE_WAY) {
                                 field[v][h - STEP] = start+ STEP;
                             }
                         } catch (ArrayIndexOutOfBoundsException ex) {
-                            ex.printStackTrace();
+                            //ignore
                         }
 
                     }
@@ -104,8 +103,8 @@ public class PathWay {
             endPoint = getWayPoint(endValue);
             way.add(endPoint);
         }
+//        System.out.println(way.toString());
         way.remove(way.size()-1);
-        System.out.println(way.toString());
 
         return way;
 

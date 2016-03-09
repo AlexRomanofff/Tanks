@@ -5,26 +5,24 @@ import interfaces.Drawable;
 
 public interface Tank extends Drawable, Destroyable {
 
-    public Action setUp();
+    Action setUp();
 
-    public void move();
+    void move();
 
-    public Bullet fire();
+    Bullet fire();
 
-    public int getX();
+    int getX();
 
-    public int getY();
+    int getY();
 
-    public void turn(Direction direction);
+    void turn(Direction direction);
 
-    public Direction getDirection();
+    Direction getDirection();
 
-    public void updateX(int x);
+    void updateX(int x);
 
-    public void updateY(int y);
+    void updateY(int y);
 
-    public int getSpeed();
-
-//    public int getMovePath();
+    int getSpeed();
 
 }

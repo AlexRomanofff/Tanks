@@ -9,12 +9,13 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class BT7 extends AbstraktTank {
-	private static final int eagleH = 4;
+
 	private final String EAGLE_QUADRANT = "8_4";
+	Stack<String> way;
 
 	public BT7 (BattleField bf) {
 		super(bf);
-		setSpeed(5);
+		setSpeed(7);
         setImages();
 	}
 	
@@ -27,64 +28,25 @@ public class BT7 extends AbstraktTank {
 
 
 	public Action setUp() {
+//		System.out.println("BT7:"+ getAction().toString());
 			return super.setUp();
+//		return Action.FIRE;
 	}
 
     @Override
 	public Action getAction() {
 
-		if (checkPresenceTankOnLine(EAGLE_QUADRANT)&& abilityFire(EAGLE_QUADRANT)) {
+		if ((checkPresenceTankOnLine(EAGLE_QUADRANT)&& abilityFire(EAGLE_QUADRANT))||(checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent()))) {
 			return setNecessaryDirection();
 		}
 		return getActionForBT7();
 	}
 
 	private Action getActionForBT7() {
-//		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
-//		if (getDirection() != Direction.DOWN) {
-//			if ((checkNextQuadrant(Direction.DOWN, getStep()) instanceof Brick || (checkNextQuadrant(Direction.DOWN, getStep()) instanceof Empty))) {
-//				return Direction.DOWN;
-//			}
-//		}
-//		if (fObj == null) {
-//			return adaptationDirection();
-//
-//		} else if (fObj instanceof Water || fObj instanceof Rock) {
-//			return adaptationDirection();
-//
-//		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
-//			return Action.FIRE;
-//
-//		} else {
-//			return Action.MOVE;
-//		}
-
-		Stack<String> way = choseShortestWay(EAGLE_QUADRANT);
+		way = choseShortestWay(EAGLE_QUADRANT);
 		return moveToNextQuadrant(way.peek());
 	}
 
-	private Direction adaptationDirection () {
-		int hor = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(2));
-	     Direction direction=getDirection();
-		if ((direction==Direction.DOWN)) {
-			if (hor > eagleH) {
-				direction = Direction.LEFT;
-			} else {
-				direction = Direction.RIGHT;
-			}
-		} else if (direction==Direction.RIGHT)  {
-			direction = Direction.DOWN;
-            if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
-				direction = Direction.LEFT;
-			}
-		} else if (direction==Direction.LEFT)
-			direction = Direction.DOWN;
-		    if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
-			    direction = Direction.RIGHT;
-		  }
-
-		return direction;
-	}
 	private void setImages () {
 		images = new Image[4];
 		try {

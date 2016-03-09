@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstraktTank implements Tank{
 
@@ -26,13 +29,11 @@ public abstract class AbstraktTank implements Tank{
 	private int quadrantY;
 	private int quadrantXEnemy;
 	private int quadrantYEnemy;
-	private int step = 1;
 	public final int quadrantSize  = 64;
 
+	private volatile int actionsFire;
 
-	public int getStep() {
-		return step;
-	}
+
 
 	public AbstraktTank(BattleField bf) {
 
@@ -178,14 +179,6 @@ public abstract class AbstraktTank implements Tank{
 	public Action setUp() {
 
 		return getAction();
-//		if (o instanceof Direction){
-//			Direction direction = (Direction)o;
-//			turn(direction);
-//
-//			return Action.TURNING;
-//		} else {
-//			return (Action) o;}
-
 
 	}
 	public String getOpponent () {
@@ -232,9 +225,10 @@ public abstract class AbstraktTank implements Tank{
 	public Action setNecessaryDirection() {
 
 		if (getDirection()== necessaryDirection()) {
+
 				return Action.FIRE;
 			} else {
-				direction= necessaryDirection();
+				direction = necessaryDirection();
 			    return setActionDirection(direction);
 		}
 	}
@@ -317,6 +311,7 @@ public abstract class AbstraktTank implements Tank{
 	}
 
 	public Action moveToNextQuadrant (String coord) {
+
 		int coordY = Integer.parseInt(coord.substring(0,1));
 		int coordX = Integer.parseInt(coord.substring(2));
 		String myCoord = bf.getQuadrant(getX(), getY());
@@ -336,10 +331,12 @@ public abstract class AbstraktTank implements Tank{
 
 	private Action checkNextQuadrant(int coordY, int coordX) {
 		if (bf.scanQuadrant(coordY, coordX) instanceof Empty) {
+//			actionsFire=0;
             return Action.MOVE;
-        } else {
+        } else if(actionsFire==0){
+//			actionsFire=1;
             return Action.FIRE;
-        }
+        }else {return Action.NONE;}
 	}
 
 	private Direction choseDirection(int coordY, int coordX, int myX, int myY) {

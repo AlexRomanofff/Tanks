@@ -8,12 +8,15 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Tiger extends AbstraktTank {
 	
 	private int armor=1;
 	private Direction []directions = new Direction[4];
+	Stack<String> way;
 
 	
 	public Tiger  (BattleField bf) {
@@ -49,9 +52,10 @@ public class Tiger extends AbstraktTank {
    }
 
 	public Action setUp() {
-     return super.setUp();
-
+		System.out.println("Tiger:"+ getAction().toString());
+		return getAction();
 	}
+
 	private void setImages () {
 		images = new Image[4];
 		try {
@@ -64,87 +68,17 @@ public class Tiger extends AbstraktTank {
 
 		}
 	}
-	private void generalDirection () {
 
-		String coordOpponent = getOpponent();
-		int xOpponent = Integer.parseInt(coordOpponent.substring(2));
-		int yOpponent = Integer.parseInt(coordOpponent.substring(0,1));
-
-		String myCoord = bf.getQuadrant(getX(),getY());
-		int myX = Integer.parseInt(myCoord.substring(2));
-		int myY = Integer.parseInt(myCoord.substring(0,1));
-
-		int dx = xOpponent-myX;
-		int dy = yOpponent-myY;
-		if (Math.abs(dx)>Math.abs(dy)) {
-			directions[0] = Direction.RIGHT;
-			directions[3] = Direction.LEFT;
-			if (dx<0) {
-				directions[0] = Direction.LEFT;
-				directions[3] = Direction.RIGHT;
-			} directions[1] = Direction.DOWN;
-			  directions[2] = Direction.UP;
-			if (dy<0) {
-				directions[1] = Direction.UP;
-				directions[2] = Direction.DOWN;
-			}
-		} else {
-			directions[0] = Direction.DOWN;
-			directions[3] = Direction.UP;
-			if (dy<0) {
-				directions[0] = Direction.UP;
-				directions[3] = Direction.DOWN;
-			} directions[1] = Direction.RIGHT;
-			  directions[2] = Direction.LEFT;
-			if (dx<0) {
-				directions[1] = Direction.LEFT;
-				directions[2] = Direction.RIGHT;
-			}
-		}
-	}
 	@Override
 	public Action getAction() {
-//		generalDirection();
 
 		if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
 			return setNecessaryDirection();
 		} else {
-			Stack<String> way = choseShortestWay(getOpponent());
+
+			way = choseShortestWay(getOpponent());
 			return moveToNextQuadrant(way.peek());
+
 		}
-
-//		Drawable fObj = checkNextQuadrant(getDirection(), getStep());
-//		if (getDirection() != directions[0] ) {
-//			if ((checkNextQuadrant(directions[0], getStep()) instanceof Brick || (checkNextQuadrant(directions[0], getStep()) instanceof Empty))) {
-//				return directions[0];
-//			}
-//		}
-//		if (fObj == null || fObj instanceof Water || fObj instanceof Rock) {
-//			return adaptationDirection();
-//
-//		} else if (fObj instanceof Brick || fObj instanceof Eagle || fObj instanceof AbstraktTank) {
-//			return Action.FIRE;
-//
-//		} else {
-//			return Action.MOVE;
-//		}
-	}
-
-	private Direction adaptationDirection() {
-		Direction direction = getDirection();
-		if ((direction == directions[0])) {
-			direction = directions[1];
-		} else if (direction == directions[1]) {
-			direction = directions[0];
-			if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
-				direction = directions[2];
-			}
-		} else if (direction == directions[2])
-			direction = directions[0];
-		if (checkNextQuadrant(direction, getStep()) instanceof Rock || checkNextQuadrant(direction, getStep()) instanceof Water) {
-			direction = directions[1];
-		}
-
-		return direction;
 	}
 }
