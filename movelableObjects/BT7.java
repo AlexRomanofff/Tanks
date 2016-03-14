@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
 
-public class BT7 extends AbstraktTank {
+public class BT7 extends AbstraktTank implements Runnable{
 
 	private final String EAGLE_QUADRANT = "8_4";
 	Stack<String> way;
@@ -27,13 +27,30 @@ public class BT7 extends AbstraktTank {
 	}
 
 
-	public Action setUp() {
-//		System.out.println("BT7:"+ getAction().toString());
-			return super.setUp();
-//		return Action.FIRE;
+	public void setUp() {
+
+		bf.aggressorActions.add(getAction());
+
 	}
 
-    @Override
+	@Override
+	public void run() {
+		while(!isDestroyed()||!bf.getDefender().isDestroyed()) {
+
+			if(bf.aggressorActions.size()==0) {
+					setUp();
+					System.out.println(bf.aggressorActions.toString());
+			}
+		}
+	}
+	@Override
+	public void startThread () {
+		Thread bt7Thread = new Thread(this);
+		bt7Thread.start();
+
+	}
+
+	@Override
 	public Action getAction() {
 
 		if ((checkPresenceTankOnLine(EAGLE_QUADRANT)&& abilityFire(EAGLE_QUADRANT))||(checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent()))) {
@@ -44,7 +61,7 @@ public class BT7 extends AbstraktTank {
 
 	private Action getActionForBT7() {
 		way = choseShortestWay(EAGLE_QUADRANT);
-		return moveToNextQuadrant(way.peek());
+		return moveToNextQuadrant(way.pop());
 	}
 
 	private void setImages () {

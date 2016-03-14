@@ -51,9 +51,25 @@ public class Tiger extends AbstraktTank {
 	   }
    }
 
-	public Action setUp() {
-		System.out.println("Tiger:"+ getAction().toString());
-		return getAction();
+	public void setUp() {
+		bf.aggressorActions.add(getAction());
+	}
+	@Override
+	public void startThread () {
+		Thread tigerThread = new Thread(this);
+		tigerThread.start();
+
+	}
+
+	@Override
+	public void run() {
+		while(!isDestroyed()||!bf.getDefender().isDestroyed()) {
+
+			if(bf.aggressorActions.size()==0) {
+				setUp();
+				System.out.println(bf.aggressorActions.toString());
+			}
+		}
 	}
 
 	private void setImages () {

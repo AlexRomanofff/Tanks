@@ -20,28 +20,29 @@ public class  ActionField extends JPanel {
 	
 	private BattleField battleField;
 	private Bullet bulletDefender;
+	private Bullet bullet;
 	private Bullet bulletAgressor;
 	private int agressorID;
 	private JFrame frame;
 	private File file;
 	private List<Action> recordingActions;
 	private List<Action> readingActions;
-    private volatile boolean isActionAgressor=true;
-	private volatile boolean isActionDefender = true;
     private volatile Queue<Bullet> bulletsDefender = new ConcurrentLinkedQueue<>();
     private volatile Queue<Bullet>bulletsAgressor = new ConcurrentLinkedQueue<>();
+
 
 
 
 	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
 		battleField = new BattleField(agressorID);
-		bulletDefender = new Bullet(-100, -100, Direction.UP, battleField.getAgressor());
+		bullet = new Bullet(-100, -100, Direction.UP, battleField.getAgressor());
 		bulletAgressor = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
 
         recordingActions = new ArrayList<>();
         readingActions = new ArrayList<>();
-
+		bulletAgressor.destroy();
+		bullet.destroy();
 
 		frame.setLocation(750, 150);
 		frame.setMinimumSize(new Dimension(battleField.getBF_WIDTH() + 16, battleField.getBF_HEIGHT() + 38));
@@ -92,8 +93,8 @@ public class  ActionField extends JPanel {
 		graphicThread.start();
 		agressorThread().start();
 		defenderThread().start();
-		bulletAgressorThread().start();
-		bulletDefenderThread().start();
+//		bulletAgressorThread().start();
+//		bulletDefenderThread().start();
 	}
 //			Thread.sleep(10);
 //			while (isRecord) {
@@ -119,16 +120,20 @@ public class  ActionField extends JPanel {
 			@Override
 			public void run() {
 				while (isNotDestroy()) {
-					if (isActionAgressor) {
-						try {
+					if (battleField.aggressorActions.size()>0) {
 
-							processAction(battleField.getAgressor().setUp(), battleField.getAgressor());
+							try {
 
-						} catch (InterruptedException ex) {
-							//ignore
+
+								Action a = battleField.aggressorActions.poll();
+
+								processAction(a, battleField.getAgressor());
+
+								System.out.println("agressor " + a.toString());
+							} catch (InterruptedException ex) {
+								//ignore
 						}
-					}
-					sleep(10);
+					}					sleep(16);
 				}
 			}
 		});
@@ -141,11 +146,11 @@ public class  ActionField extends JPanel {
 			@Override
 			public void run() {
 				while (isNotDestroy()) {
-					if (isActionDefender) {
+					if (battleField.defenderActions.size()>0) {
 
 						try {
-							processAction(battleField.getDefender().setUp(), battleField.getDefender());
-							sleep(16);
+							processAction(Action.FIRE, battleField.getDefender());
+
 						} catch (InterruptedException ex) {
 							//ignore
 						}
@@ -171,12 +176,7 @@ public class  ActionField extends JPanel {
 
 
 	private void processAction(Action a, Tank t) throws InterruptedException {
-		if (t==battleField.getAgressor()) {
-			isActionAgressor=false;
-		} else {
-			isActionDefender=false;
-		}
-		System.out.println(t.toString() + a.toString());
+
 		if (a == Action.MOVE) {
 			processMove(t);
 
@@ -202,12 +202,6 @@ public class  ActionField extends JPanel {
 			t.turn(Direction.RIGHT);
 //			processTurn();
 		}
-		if (t==battleField.getAgressor()) {
-		    isActionAgressor=true;
-		} else {
-			isActionDefender=true;
-		}
-
 	}
 
 	private boolean processInterception(Bullet bullet)  {
@@ -273,57 +267,36 @@ public class  ActionField extends JPanel {
 		return ((bulletX == tankX)&&(bulletY==tankY));
 
 	}
-	private void processFire (Bullet bullet) {
-		if (bullet.getTank()==battleField.getAgressor()) {
-			bulletAgressor=bullet;
-			bulletsAgressor.add(bullet);
+
+	private void processFire(Bullet bullet) {
+
+		if (bullet.getTank() == battleField.getAgressor()) {
+			if (this.bulletAgressor.isDestroyed()) {
+				bulletAgressor = bullet;
+				bulletAgressorThread(bullet).start();
+			}
 		} else {
-			bulletDefender = bullet;
-			bulletsDefender.add(bullet);
+			if (this.bullet.isDestroyed()) {
+				this.bullet = bullet;
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						moveBullet(bullet);
+					}
+				}).start();
+			}
 		}
-
 	}
 
-	public Thread bulletAgressorThread() {
+	private Thread bulletAgressorThread(final Bullet bullet) {
+		return new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-		Thread bulletThread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (true) {
-
-					if (bulletsAgressor.size() < 1) {
-						sleep(10);
-					} else {
-						moveBullet(bulletsAgressor.poll());
-						isActionAgressor = true;
-					}
-				}
-			}
-		});
-		return bulletThread;
+                moveBullet(bullet);
+            }
+        });
 	}
-
-	public Thread bulletDefenderThread() {
-
-		Thread bulletThread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (true) {
-
-					if (bulletsDefender.size() < 1) {
-						sleep(10);
-					} else {
-						moveBullet(bulletsDefender.poll());
-						isActionDefender = true;
-					}
-				}
-			}
-		});
-		return bulletThread;
-	}
-
 
 	private void moveBullet(Bullet bullet) {
 		if (bullet!= null) {
@@ -335,12 +308,14 @@ public class  ActionField extends JPanel {
 				moveBullet(bullet, step);
 
 				if (processInterception(bullet)) {
-
 					bullet.destroy();
+					if (bullet.isDestroyed())
+
 
 					break;
 				}
 			}
+			bullet.destroy();
 		}
 	}
 
@@ -386,19 +361,9 @@ public class  ActionField extends JPanel {
 		if (tank.getDirection() == Direction.UP || tank.getDirection() == Direction.DOWN) {
 
 			moveUpDown(step, tank);
-			if (tank==battleField.getAgressor()) {
-				isActionAgressor=true;
-			} else {
-				isActionDefender=true;
-			}
 			return;
 		}
 		moveLeftRight(step,tank);
-		if (tank==battleField.getAgressor()) {
-			isActionAgressor=true;
-		} else {
-			isActionDefender=true;
-		}
 	}
 
 	private int getStepTank(Tank tank) {
@@ -477,8 +442,7 @@ public class  ActionField extends JPanel {
 				|| (tank.getY() >= 512 && direction == Direction.DOWN)
 				|| (tank.getX() >= 512 && direction == Direction.RIGHT)
 				|| (tank.getX() <= 0 && direction == Direction.LEFT))
-				|| !(checkNextQuadrant(tank) instanceof Empty)
-				&& !(checkNextQuadrant(tank) instanceof Water);
+				|| !(checkNextQuadrant(tank) instanceof Empty);
 	}
 		
 	public void processTurn(){
@@ -492,7 +456,7 @@ public class  ActionField extends JPanel {
 		battleField.draw(g);
 		battleField.getDefender().draw(g);
 		battleField.getAgressor().draw(g);
-		bulletDefender.draw(g);
+		bullet.draw(g);
 		bulletAgressor.draw(g);
 
 

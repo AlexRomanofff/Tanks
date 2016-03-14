@@ -3,13 +3,17 @@ package movelableObjects;
 import interfaces.Destroyable;
 import interfaces.Drawable;
 
-public interface Tank extends Drawable, Destroyable {
+public interface Tank extends Drawable, Destroyable, Runnable {
 
-    Action setUp();
+    void setUp();
+
+    void run();
 
     void move();
 
     Bullet fire();
+
+    void startThread();
 
     int getX();
 

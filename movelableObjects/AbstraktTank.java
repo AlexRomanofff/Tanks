@@ -8,9 +8,6 @@ import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstraktTank implements Tank{
 
@@ -31,13 +28,14 @@ public abstract class AbstraktTank implements Tank{
 	private int quadrantYEnemy;
 	public final int quadrantSize  = 64;
 
+
 	private volatile int actionsFire;
 
 
 
 	public AbstraktTank(BattleField bf) {
-
 		this(bf, 0, 0, Direction.DOWN);
+
 
 		}
 
@@ -47,6 +45,12 @@ public abstract class AbstraktTank implements Tank{
 		coordTanks(quadrant);
 		this.direction = direction;
 
+
+
+	}
+
+	public void startThread() {
+
 	}
 
 	public AbstraktTank(BattleField bf, int x, int y, Direction direction) {
@@ -55,6 +59,8 @@ public abstract class AbstraktTank implements Tank{
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
+
+
 
 	}
 
@@ -82,6 +88,10 @@ public abstract class AbstraktTank implements Tank{
 		x = Integer.parseInt(coord.substring(separator + 1));
 	}
 
+	@Override
+	public void run() {
+
+	}
 
 	public int getSpeed() {
 		return speed;
@@ -176,9 +186,7 @@ public abstract class AbstraktTank implements Tank{
 			 }
 		}
 	}
-	public Action setUp() {
-
-		return getAction();
+	public void setUp() {
 
 	}
 	public String getOpponent () {
@@ -336,7 +344,9 @@ public abstract class AbstraktTank implements Tank{
         } else if(actionsFire==0){
 //			actionsFire=1;
             return Action.FIRE;
-        }else {return Action.NONE;}
+        }else {
+
+			return Action.NONE;}
 	}
 
 	private Direction choseDirection(int coordY, int coordX, int myX, int myY) {

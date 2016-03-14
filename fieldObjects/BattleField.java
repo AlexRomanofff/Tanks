@@ -4,6 +4,8 @@ package fieldObjects;
 import movelableObjects.*;
 
 import java.awt.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 
 public class BattleField {
@@ -14,14 +16,16 @@ public class BattleField {
 	private Tank agressor;
 	private Tank defender;
 	private AbstractBFObject eagle;
+	public volatile Queue<Action> aggressorActions;
+	public volatile Queue<Action> defenderActions;
 
 	public String[][] battleField = {
 			{ " ", "B", "B", " ", " ", " ", "B", "B", "W" },
 			{ "B", "B", "B", " ", "B", " ", "B", "B", "W" },
 			{ "B", "B", " ", "W", " ", " ", " ", "B", "W" },
 			{ "B", "B", " ", "W", "B", " ", " ", " ", " " },
-			{ " ", " ", " ", " ", "B", "B", " ", " ", " " },
-			{ "R", "R", "R", " ", "R", "R", "R", " ", "R" },
+			{ " ", " ", "R", " ", "B", "B", " ", " ", " " },
+			{ "R", "R", "R", "R", "R", "R", "R", " ", "R" },
 			{ "B", " ", " ", "B", "W", "W", " ", " ", "R" },
 			{ "B", "R", " ", " ", " ", " ", " ", " ", "B" },
 			{ " ", "B", "B", " ", "E", " ", " ", "B", "W" },
@@ -44,8 +48,12 @@ public class BattleField {
 
 		fillGameField();
 		agressor = setAgressor(agressorId);
-		defender = new T34(this, 192, 448, Direction.UP);
+		defender = new T34(this, 320, 512, Direction.RIGHT);
 		eagle = scanQuadrant(8,4);
+		aggressorActions = new ConcurrentLinkedQueue<>();
+		defenderActions = new ConcurrentLinkedQueue<>();
+		agressor.startThread();
+		defender.startThread();
 	}
 
 

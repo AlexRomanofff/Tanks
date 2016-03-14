@@ -8,7 +8,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class T34 extends AbstraktTank {
+public class T34 extends AbstraktTank implements Runnable{
 
 
     public T34(BattleField bf) {
@@ -36,16 +36,39 @@ public class T34 extends AbstraktTank {
         }
     }
 
-    public Action setUp() {
+    public void setUp() {
 //        System.out.println("T34:"+ getAction().toString());
 //        return getAction();
-        return Action.FIRE;
-
+//        return Action.FIRE;
+        bf.defenderActions.add(getAction());
     }
+        @Override
+        public void run() {
+            while(!isDestroyed()||!bf.getDefender().isDestroyed()) {
+
+                if(bf.defenderActions.size()==0) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+
+                    }
+                    setUp();
+                    System.out.println(bf.defenderActions.toString());
+
+                }
+            }
+        }
+        @Override
+        public void startThread () {
+            Thread t34Thread = new Thread(this);
+            t34Thread.start();
+
+        }
+
     @Override
     public Action getAction() {
 
-        if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
+        if (checkPresenceTankOnLine(getOpponent())) {
             return setNecessaryDirection();
         } else {
             Direction dir = getDirection();
