@@ -1,17 +1,19 @@
 package movelableObjects;
 
-import fieldObjects.BattleField;
-import fieldObjects.Empty;
+import fieldObjects.*;
+
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-
+import java.util.Stack;
 
 public class Tiger extends AbstraktTank {
 	
 	private int armor=1;
+	Stack<String> way;
+
 	
 	public Tiger  (BattleField bf) {
 		super(bf);
@@ -40,16 +42,17 @@ public class Tiger extends AbstraktTank {
    public void destroy() {
 	   if (getArmor() == 1) {
 		   setArmor(0);
-		   return;
 	   } else {
 		   super.destroy();
 	   }
    }
 
-	@Override
-	public Action setUp() {
-				return Action.MOVE;
-			}
+	public void setUp() {
+		bf.aggressorActions.add(getAction());
+	}
+
+
+
 	private void setImages () {
 		images = new Image[4];
 		try {
@@ -63,4 +66,16 @@ public class Tiger extends AbstraktTank {
 		}
 	}
 
+	@Override
+	public Action getAction() {
+
+		if (checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent())) {
+			return setNecessaryDirection();
+		} else {
+
+			way = choseShortestWay(getOpponent());
+			return moveToNextQuadrant(way.pop());
+
+		}
+	}
 }

@@ -1,13 +1,15 @@
 package movelableObjects;
 
-import fieldObjects.BattleField;
-import fieldObjects.Water;
+import engine.PathWay;
+import fieldObjects.*;
+import interfaces.Drawable;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 
-public abstract class AbstraktTank implements Tank{
+public abstract class AbstraktTank implements Tank, Runnable{
 
 	private int speed = 10;
 	private int x;
@@ -15,12 +17,17 @@ public abstract class AbstraktTank implements Tank{
 	private Direction direction;
 	protected BattleField bf;
 	protected Image[] images;
-
 	private String quadrant = randomChoiseQuadrant();
 	private boolean destroyed;
 
+	private int quadrantX;
+	private int quadrantY;
+	private int quadrantXEnemy;
+	private int quadrantYEnemy;
+
 	public AbstraktTank(BattleField bf) {
-		this(bf, 192, 0, Direction.DOWN);
+		this(bf, 0, 0, Direction.DOWN);
+
 
 		}
 
@@ -30,6 +37,21 @@ public abstract class AbstraktTank implements Tank{
 		coordTanks(quadrant);
 		this.direction = direction;
 
+
+
+	}
+	@Override
+	public void run() {
+		while (!isDestroyed() || !bf.getDefender().isDestroyed()) {
+
+			sleep(300);
+			setUp();
+		}
+	}
+
+
+	public void startThread() {
+         new Thread(bf.getAgressor()).start();
 	}
 
 	public AbstraktTank(BattleField bf, int x, int y, Direction direction) {
@@ -38,6 +60,8 @@ public abstract class AbstraktTank implements Tank{
 		this.x = x;
 		this.y = y;
 		this.direction = direction;
+
+
 
 	}
 
@@ -64,7 +88,6 @@ public abstract class AbstraktTank implements Tank{
 		y = Integer.parseInt(coord.substring(0, separator));
 		x = Integer.parseInt(coord.substring(separator + 1));
 	}
-
 
 	public int getSpeed() {
 		return speed;
@@ -129,6 +152,10 @@ public abstract class AbstraktTank implements Tank{
 		destroyed = true;
 	}
 
+	public Action getAction () {
+		return null;
+	}
+
 	public void draw(Graphics g) {
 		Graphics2D g2D = (Graphics2D) g;
 		if (!destroyed) {
@@ -137,7 +164,7 @@ public abstract class AbstraktTank implements Tank{
 
 					 g2D.setComposite(AlphaComposite.getInstance(
 						 AlphaComposite.SRC_OVER, 0.3f));
-				 g2D.drawImage(images[getDirection().getID()], getX(), getY(), new ImageObserver() {
+				     g2D.drawImage(images[getDirection().getID()], getX(), getY(), new ImageObserver() {
 					 @Override
 					 public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
 						 return false;
@@ -154,5 +181,185 @@ public abstract class AbstraktTank implements Tank{
 				 });
 			 }
 		}
+	}
+	public void setUp() {
+
+	}
+	public String getOpponent () {
+		String quadrantOpponent = bf.getQuadrant(bf.getAgressor().getX(), bf.getAgressor().getY());
+		if (this == bf.getAgressor()) {
+			quadrantOpponent = bf.getQuadrant(bf.getDefender().getX(), bf.getDefender().getY());
+		}
+		return quadrantOpponent;
+	}
+	public void sleep(long timeout) {
+		try {
+			Thread.currentThread().sleep(timeout);
+		} catch (InterruptedException ex) {
+
+		}
+	}
+
+	public Drawable checkNextQuadrant(Direction direction, int step) {
+		int vert = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(0, 1));
+		int hor = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(2));
+
+		if (direction == Direction.UP) {
+			vert=vert-step;
+		} else if (direction == Direction.DOWN) {
+			vert=vert+step;
+		} else if (direction == Direction.LEFT) {
+			hor=hor-step;
+		} else {
+			hor=hor+step;
+		}
+		String coordinates = (Integer.toString(vert) + "_" + Integer.toString(hor));
+		if (coordinates.equals(getOpponent())) {
+			return getEnemy();
+		}
+		if (checkBorders(vert, hor)) return null;
+		return bf.scanQuadrant(vert, hor);
+	}
+
+	private boolean checkBorders(int vert, int hor) {
+		return ((hor > 8 || hor < 0) || (vert > 8 || vert < 0));
+	}
+
+	private Drawable getEnemy() {
+		if (this == bf.getAgressor()) {
+            return bf.getDefender();
+        } else {
+            return bf.getAgressor();
+        }
+	}
+
+	public Action setNecessaryDirection() {
+
+		if (getDirection()== necessaryDirection()) {
+
+				return Action.FIRE;
+			} else {
+				direction = necessaryDirection();
+			    return setActionDirection(direction);
+		}
+	}
+	public Action setActionDirection (Direction direction) {
+		if (direction==Direction.LEFT) {
+			return Action.TURN_LEFT;
+		}
+		else if (direction==Direction.RIGHT) {
+			return Action.TURN_RIGHT;
+		}
+		else if (direction==Direction.UP) {
+			return Action.TURN_UP;
+		}
+		else{return Action.TURN_DOWN;
+		}
+	}
+
+	public boolean abilityFire(String enemyCoord) {
+
+		int distance = quadrantX - Integer.parseInt(enemyCoord.substring(2));
+		if (distance == 0) {
+			distance = quadrantY - Integer.parseInt(enemyCoord.substring(0,1));
+		}
+		int step = 1;
+		while (!(distance == 0)) {
+            if ((this instanceof T34 && checkEagleOnFireLine(step))
+			|| (!(this instanceof T34) && checkRockOnFireLine(step))){
+					return false;
+
+			}else {
+				step++;
+				if (distance < 0) {
+					distance++;
+				} else {
+					distance--;
+				}
+			}
+		}
+		return true;
+	}
+
+	private boolean checkRockOnFireLine(int step) {
+		return checkNextQuadrant(necessaryDirection(), step) instanceof Rock;
+	}
+
+	private boolean checkEagleOnFireLine(int step) {
+		return checkNextQuadrant(necessaryDirection(), step) instanceof Eagle;
+	}
+
+	public boolean checkPresenceTankOnLine (String enemyCoord) {
+
+		quadrantXEnemy = Integer.parseInt(enemyCoord.substring(2));
+		quadrantYEnemy = Integer.parseInt(enemyCoord.substring(0, 1));
+
+		String myCoord = bf.getQuadrant(getX(), getY());
+		quadrantX = Integer.parseInt(myCoord.substring(2));
+		quadrantY = Integer.parseInt(myCoord.substring(0, 1));
+
+		return (quadrantX == quadrantXEnemy || quadrantY == quadrantYEnemy);
+	}
+
+	private Direction necessaryDirection() {
+
+		int distance = quadrantX - quadrantXEnemy;
+		Direction dir = Direction.LEFT;
+		if (distance < 0) {
+			dir = Direction.RIGHT;
+		} else if (distance == 0) {
+			distance = quadrantY - quadrantYEnemy;
+			dir = Direction.UP;
+			if (distance < 0) {
+				dir = Direction.DOWN;
+			}
+		}return dir;
+	}
+	public Stack choseShortestWay (String enemyCoord) {
+		String myCoord = bf.getQuadrant(getX(), getY());
+		PathWay pathWay = new PathWay(bf.getFieldObjects(), myCoord, enemyCoord);
+		return pathWay.getPath();
+	}
+
+	public Action moveToNextQuadrant (String coord) {
+
+		int coordY = Integer.parseInt(coord.substring(0,1));
+		int coordX = Integer.parseInt(coord.substring(2));
+		String myCoord = bf.getQuadrant(getX(), getY());
+		int myX = Integer.parseInt(myCoord.substring(2));
+		int myY = Integer.parseInt(myCoord.substring(0, 1));
+
+		Direction dir = choseDirection(coordY, coordX, myX, myY);
+
+		if (getDirection() == dir) {
+
+			return checkNextQuadrant(coordY, coordX);
+
+		} else {
+		  return setActionDirection(dir);
+		}
+	}
+
+	private Action checkNextQuadrant(int coordY, int coordX) {
+		if (bf.scanQuadrant(coordY, coordX) instanceof Empty) {
+
+            return Action.MOVE;
+        } else {
+            return Action.FIRE;}
+
+	}
+
+	private Direction choseDirection(int coordY, int coordX, int myX, int myY) {
+		Direction nessecaryDirection;
+
+		if (coordX - myX < 0) {
+			nessecaryDirection = Direction.LEFT;
+		} else if (coordX - myX > 0) {
+			nessecaryDirection = Direction.RIGHT;
+		} else if (coordY - myY < 0) {
+			nessecaryDirection = Direction.UP;
+		} else {
+			nessecaryDirection = Direction.DOWN;
+		} return nessecaryDirection;
 	}
 }

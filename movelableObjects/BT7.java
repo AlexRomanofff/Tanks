@@ -6,13 +6,16 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Stack;
 
-public class BT7 extends AbstraktTank {
-	private final int eagleV = 4;
+public class BT7 extends AbstraktTank implements Runnable{
+
+	private final String EAGLE_QUADRANT = "8_4";
+	Stack<String> way;
 
 	public BT7 (BattleField bf) {
 		super(bf);
-		setSpeed(5);
+		setSpeed(7);
         setImages();
 	}
 	
@@ -24,80 +27,35 @@ public class BT7 extends AbstraktTank {
 	}
 
 
-	public Action setUp() {
+	public void setUp() {
 
-        Object o = chooseAction();
-		if (o instanceof Direction){
-			Direction direction = (Direction)o;
-			turn(direction);
-			return Action.TURNING;
-		} else {
-		return (Action) o;}
+		bf.aggressorActions.add(getAction());
 
 	}
 
-	private Object chooseAction() {
+	@Override
+	public void run() {
+		while (!isDestroyed() || !bf.getDefender().isDestroyed()) {
 
-		AbstractBFObject fObj = checkNextQuadrant(getDirection());
-		if (getDirection() != Direction.DOWN) {
-			if ((checkNextQuadrant(Direction.DOWN) instanceof Brick || (checkNextQuadrant(Direction.DOWN) instanceof Empty))) {
-				return Direction.DOWN;
-			}
+			sleep(300);
+			setUp();
 		}
-		if (fObj == null) {
-			return adaptationDirection();
-
-		} else if (fObj instanceof Water || fObj instanceof Rock) {
-			return adaptationDirection();
-
-		} else if (fObj instanceof Brick || fObj instanceof Eagle) {
-			return Action.FIRE;
-
-		} else {
-			return Action.MOVE;
-		}
-    }
-
-	private AbstractBFObject checkNextQuadrant(Direction direction) {
-		int vert = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(0, 1));
-		int hor = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(2));
-
-		if (direction == Direction.UP) {
-			vert--;
-		} else if (direction == Direction.DOWN) {
-			vert++;
-		} else if (direction == Direction.LEFT) {
-			hor--;
-		} else {
-			hor++;
-		} if ((hor>8 || hor<0)|| (vert>8 || vert<0)) {
-			return null;
-		}
-		return bf.scanQuadrant(vert, hor);
 	}
 
-	private Direction adaptationDirection () {
-		int hor = Integer.parseInt(bf.getQuadrant(getX(), getY()).substring(2));
-	     Direction direction=getDirection();
-		if ((direction==Direction.DOWN)) {
-			if (hor > eagleV) {
-				direction = Direction.LEFT;
-			} else {
-				direction = Direction.RIGHT;
-			}
-		} else if (direction==Direction.RIGHT)  {
-			direction = Direction.DOWN;
-            if (checkNextQuadrant(direction) instanceof Rock || checkNextQuadrant(direction) instanceof Water) {
-				direction = Direction.LEFT;
-			}
-		} else if (direction==Direction.LEFT)
-			direction = Direction.DOWN;
-		    if (checkNextQuadrant(direction) instanceof Rock || checkNextQuadrant(direction) instanceof Water) {
-			    direction = Direction.RIGHT;
-		  }
+	@Override
+	public Action getAction() {
 
-		return direction;
+		if ((checkPresenceTankOnLine(EAGLE_QUADRANT)&& abilityFire(EAGLE_QUADRANT))||(checkPresenceTankOnLine(getOpponent())&& abilityFire(getOpponent()))) {
+			return setNecessaryDirection();
+		}
+		return getActionForBT7();
 	}
+
+	private Action getActionForBT7() {
+		way = choseShortestWay(EAGLE_QUADRANT);
+		return moveToNextQuadrant(way.pop());
+	}
+
 	private void setImages () {
 		images = new Image[4];
 		try {

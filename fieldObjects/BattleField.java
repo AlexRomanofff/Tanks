@@ -1,39 +1,66 @@
 package fieldObjects;
 
 
+import movelableObjects.*;
+
 import java.awt.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
+
 
 public class BattleField {
 	
-	private final int BF_WIDTH = 576;
-	private final int BF_HEIGHT = 576;
+	private static final int BF_WIDTH = 576;
+	private static final int BF_HEIGHT = 576;
 	private boolean COLORDED_MODE = false;
+	private Tank agressor;
+	private Tank defender;
+	private AbstractBFObject eagle;
+	public Queue<Action> aggressorActions;
+	public Queue<Action> defenderActions;
 
 	public String[][] battleField = {
-			{ "B", "B", "B", " ", "R", " ", "B", "B", "W" },
-			{ "B", "B", "B", "W", "R", " ", "B", "B", "W" },
+			{ " ", "B", "B", " ", " ", " ", "B", "B", "W" },
+			{ "B", "B", "B", " ", "B", " ", "B", "B", "W" },
 			{ "B", "B", " ", "W", " ", " ", " ", "B", "W" },
-			{ "B", " ", " ", "W", " ", " ", " ", " ", " " },
-			{ " ", " ", "B", "B", "B", "B", "R", " ", " " },
-			{ "R", " ", "R", "R", "R", "R", "", " ", "R" },
-			{ "R", " ", " ", "W", "W", "W", " ", " ", "R" },
+			{ "B", "B", " ", "W", "B", " ", " ", " ", " " },
+			{ " ", " ", "R", " ", "B", "B", " ", " ", " " },
+			{ "R", "R", "R", " ", "R", "R", "R", " ", " " },
+			{ "B", " ", " ", "B", "W", "W", " ", " ", " " },
 			{ "B", "R", " ", " ", " ", " ", " ", " ", "B" },
-			{ "B", "B", "B", "B", "E", " ", "B", "B", "W" },
+			{ " ", "B", "B", " ", "E", " ", " ", "B", "W" },
 
 	};
+
+
 	public AbstractBFObject [][] fieldObjects = new AbstractBFObject[battleField[0].length][battleField.length];
 
-	private void fillGameField () throws Exception  {
+	private void fillGameField ()  {
 		for (int j = 0; j < getDimensionY(); j++) {
 			for (int k = 0; k < getDimensionX(); k++) {
 					fieldObjects[j][k] = choiseObject(j,k);
 			}
 		}
 	}
-	
-	public BattleField () throws Exception  {
-		fillGameField();
+
+	public AbstractBFObject[][] getFieldObjects() {
+		return fieldObjects;
 	}
+
+	public BattleField (int agressorId) {
+
+		fillGameField();
+		agressor = setAgressor(agressorId);
+		defender = new T34(this, 320, 512, Direction.RIGHT);
+		eagle = scanQuadrant(8,4);
+		aggressorActions = new ConcurrentLinkedQueue<>();
+		defenderActions = new ConcurrentLinkedQueue<>();
+
+
+	}
+
 
 	public int getBF_WIDTH() {		
 		return BF_WIDTH;
@@ -75,6 +102,10 @@ public class BattleField {
         drawObjects(g);
 	}
 
+	public AbstractBFObject getEagle() {
+		return eagle;
+	}
+
 	private void drawWindow(Graphics g) {
 		int i = 0;
 		Color cc;
@@ -96,8 +127,9 @@ public class BattleField {
 		}
 	}
 
-	private AbstractBFObject choiseObject (int x, int y)throws Exception  {
+	private AbstractBFObject choiseObject (int x, int y)  {
 		AbstractBFObject obj;
+
 		if (scanQuadrantBF(x, y).equals("B")) {
 			obj = new Brick(y*64, x*64);
 		} else if (scanQuadrantBF(x, y).equals("R")) {
@@ -109,7 +141,16 @@ public class BattleField {
 		}else {
 			obj = new Empty(y * 64, x * 64);
 		}
+
 	return obj;
+	}
+
+	public Tank getAgressor() {
+		return agressor;
+	}
+
+	public Tank getDefender() {
+		return defender;
 	}
 
 	private void drawObjects (Graphics g) {
@@ -117,6 +158,17 @@ public class BattleField {
 			for (int k = 0; k < getDimensionX(); k++) {
 				fieldObjects[j][k].draw(g);
 			}
+		}
+	}
+	public Tank setAgressor (int i) {
+		if (i==0) {
+			return new BT7(this);
+		}
+		else if (i==1) {
+			return new Tiger(this);
+		}
+		else {
+			return new T34(this);
 		}
 	}
 }
