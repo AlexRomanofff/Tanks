@@ -8,18 +8,16 @@ import movelableObjects.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.*;
+
 
 
 public class  ActionField extends JPanel {
 	
 	private BattleField battleField;
-	private Bullet bulletDefender;
 	private Bullet bullet;
 	private Bullet bulletAgressor;
 	private int agressorID;
@@ -27,11 +25,6 @@ public class  ActionField extends JPanel {
 	private File file;
 	private List<Action> recordingActions;
 	private List<Action> readingActions;
-    private volatile Queue<Bullet> bulletsDefender = new ConcurrentLinkedQueue<>();
-    private volatile Queue<Bullet>bulletsAgressor = new ConcurrentLinkedQueue<>();
-
-
-
 
 	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
@@ -49,8 +42,12 @@ public class  ActionField extends JPanel {
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.getContentPane().add(startWindow());
 
+
+
 		frame.pack();
 		frame.setVisible(true);
+
+
 		file = new File("recordAction.txt");
 		if(file.exists()) {
 			createRecordFile();
@@ -68,16 +65,22 @@ public class  ActionField extends JPanel {
 
 
 	void runTheGame() {
+		frame.addKeyListener(createKeyListener());
+		frame.setFocusable(true);
+		frame.requestFocusInWindow();
 
 		Thread graphicThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (isNotDestroy()) {
-						sleep(16);
-						repaint();
+					sleep(16);
+					repaint();
+
+
 				}
 
 				sleep(500);
+				frame.setFocusable(false);
 				String winner;
 				if (battleField.getAgressor().isDestroyed()) {
 					battleField.getDefender().destroy();
@@ -89,12 +92,12 @@ public class  ActionField extends JPanel {
 				displayingEndScreen(winner);
 			}
 		});
+		battleField.getAgressor().startThread();
 
 		graphicThread.start();
 		agressorThread().start();
-		defenderThread().start();
-//		bulletAgressorThread().start();
-//		bulletDefenderThread().start();
+		defenderThread();
+
 	}
 //			Thread.sleep(10);
 //			while (isRecord) {
@@ -120,46 +123,111 @@ public class  ActionField extends JPanel {
 			@Override
 			public void run() {
 				while (isNotDestroy()) {
+					sleep(50);
 					if (battleField.aggressorActions.size()>0) {
-
 							try {
 
-
+								for (int i=0; i<battleField.aggressorActions.size()-1; i++){
+									battleField.aggressorActions.remove();
+								}
 								Action a = battleField.aggressorActions.poll();
 
 								processAction(a, battleField.getAgressor());
 
-								System.out.println("agressor " + a.toString());
 							} catch (InterruptedException ex) {
 								//ignore
 						}
-					}					sleep(16);
+					}
 				}
 			}
 		});
 		return threadAgressor;
 	}
 
-	private Thread defenderThread () {
+	private void defenderThread() {
 
-		Thread threadDefender = new Thread(new Runnable() {
+		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				while (isNotDestroy()) {
-					if (battleField.defenderActions.size()>0) {
+                    sleep(16);
+					if (battleField.defenderActions.size() > 0) {
 
 						try {
-							processAction(Action.FIRE, battleField.getDefender());
+
+							Action a = battleField.defenderActions.poll();
+							processAction(a, battleField.getDefender());
 
 						} catch (InterruptedException ex) {
-							//ignore
+                           //ignore
 						}
 					}
-						sleep(16);
 				}
 			}
-		});
-		return threadDefender;
+		}).start();
+
+
+
+
+	}
+
+	private KeyListener createKeyListener() {
+		KeyListener kl = new KeyAdapter() {
+
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+
+				int keyAction = e.getKeyCode();
+
+					if (keyAction == KeyEvent.VK_UP) {
+						if (battleField.getDefender().getDirection() == Direction.UP) {
+							battleField.defenderActions.add(Action.MOVE);
+					} else {
+						battleField.defenderActions.add(Action.TURN_UP);
+					}
+
+
+					} else if (keyAction == KeyEvent.VK_DOWN) {
+						if (battleField.getDefender().getDirection() == Direction.DOWN) {
+							battleField.defenderActions.add(Action.MOVE);
+						} else {
+							battleField.defenderActions.add(Action.TURN_DOWN);
+						}
+
+					} else if (keyAction == KeyEvent.VK_LEFT) {
+						if (battleField.getDefender().getDirection() == Direction.LEFT) {
+							battleField.defenderActions.add(Action.MOVE);
+						} else {
+							battleField.defenderActions.add(Action.TURN_LEFT);
+						}
+
+					} else if (keyAction == KeyEvent.VK_RIGHT) {
+						if (battleField.getDefender().getDirection() == Direction.RIGHT) {
+							battleField.defenderActions.add(Action.MOVE);
+						} else {
+							battleField.defenderActions.add(Action.TURN_RIGHT);
+						}
+
+					} else if (keyAction == KeyEvent.VK_SPACE) {
+						battleField.defenderActions.add(Action.FIRE);
+					}
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				int keyAction = e.getKeyCode();
+
+					battleField.defenderActions.clear();
+				if (keyAction==KeyEvent.VK_SPACE) {
+					battleField.defenderActions.add(Action.FIRE);
+				}
+
+			}
+		};
+
+		return kl;
 	}
 
 	private boolean isNotDestroy() {
@@ -462,7 +530,7 @@ public class  ActionField extends JPanel {
 
 	}
 	private JPanel startWindow() {
-        String[] tanks = {"BT7", "Tiger", "T34"};
+        String[] tanks = {"BT7", "Tiger"};
 
 
         JPanel pan = new JPanel();

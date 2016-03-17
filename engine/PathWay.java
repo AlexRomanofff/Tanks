@@ -1,5 +1,7 @@
 package engine;
 
+import fieldObjects.*;
+
 import java.util.Stack;
 
 public class PathWay {
@@ -14,7 +16,8 @@ public class PathWay {
     private int startPoint = 1;
     private int[][] field = new int[9][9];
 
-    public PathWay(String[][]bf, String myCoord, String coordOpponent) {
+
+    public PathWay(AbstractBFObject[][]bf, String myCoord, String coordOpponent) {
         fillArray(bf);
         startCoord = myCoord;
         endCoord = coordOpponent;
@@ -23,6 +26,7 @@ public class PathWay {
         field[startY][startX]= startPoint;
 
     }
+
 
     private void setOpponentCoord(String coordOpponent) {
         endY = Integer.parseInt(coordOpponent.substring(0,1));
@@ -34,10 +38,11 @@ public class PathWay {
         startX=Integer.parseInt(myCoord.substring(2));
     }
 
-    private void fillArray(String[][] bf) {
+
+    private void fillArray(AbstractBFObject[][] bf) {
         for(int i=0; i<bf.length; i++) {
             for (int k=0; k<bf.length; k++) {
-                if (bf[i][k].equals("B") || bf[i][k].equals(" ")|| bf[i][k].equals("E")) {
+                if (bf[i][k] instanceof Brick || bf[i][k] instanceof Empty|| bf[i][k] instanceof Eagle) {
                     field[i][k]=-1;
                 }else {
                     field[i][k]=0;
@@ -103,7 +108,7 @@ public class PathWay {
             endPoint = getWayPoint(endValue);
             way.add(endPoint);
         }
-//        System.out.println(way.toString());
+        System.out.println(way.toString());
         way.remove(way.size()-1);
 
         return way;

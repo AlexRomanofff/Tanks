@@ -35,19 +35,11 @@ public class BT7 extends AbstraktTank implements Runnable{
 
 	@Override
 	public void run() {
-		while(!isDestroyed()||!bf.getDefender().isDestroyed()) {
+		while (!isDestroyed() || !bf.getDefender().isDestroyed()) {
 
-			if(bf.aggressorActions.size()==0) {
-					setUp();
-					System.out.println(bf.aggressorActions.toString());
-			}
+			sleep(300);
+			setUp();
 		}
-	}
-	@Override
-	public void startThread () {
-		Thread bt7Thread = new Thread(this);
-		bt7Thread.start();
-
 	}
 
 	@Override

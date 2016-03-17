@@ -6,6 +6,8 @@ import movelableObjects.*;
 import java.awt.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class BattleField {
@@ -16,8 +18,8 @@ public class BattleField {
 	private Tank agressor;
 	private Tank defender;
 	private AbstractBFObject eagle;
-	public volatile Queue<Action> aggressorActions;
-	public volatile Queue<Action> defenderActions;
+	public Queue<Action> aggressorActions;
+	public Queue<Action> defenderActions;
 
 	public String[][] battleField = {
 			{ " ", "B", "B", " ", " ", " ", "B", "B", "W" },
@@ -25,8 +27,8 @@ public class BattleField {
 			{ "B", "B", " ", "W", " ", " ", " ", "B", "W" },
 			{ "B", "B", " ", "W", "B", " ", " ", " ", " " },
 			{ " ", " ", "R", " ", "B", "B", " ", " ", " " },
-			{ "R", "R", "R", "R", "R", "R", "R", " ", "R" },
-			{ "B", " ", " ", "B", "W", "W", " ", " ", "R" },
+			{ "R", "R", "R", " ", "R", "R", "R", " ", " " },
+			{ "B", " ", " ", "B", "W", "W", " ", " ", " " },
 			{ "B", "R", " ", " ", " ", " ", " ", " ", "B" },
 			{ " ", "B", "B", " ", "E", " ", " ", "B", "W" },
 
@@ -42,7 +44,10 @@ public class BattleField {
 			}
 		}
 	}
-	
+
+	public AbstractBFObject[][] getFieldObjects() {
+		return fieldObjects;
+	}
 
 	public BattleField (int agressorId) {
 
@@ -52,8 +57,8 @@ public class BattleField {
 		eagle = scanQuadrant(8,4);
 		aggressorActions = new ConcurrentLinkedQueue<>();
 		defenderActions = new ConcurrentLinkedQueue<>();
-		agressor.startThread();
-		defender.startThread();
+
+
 	}
 
 

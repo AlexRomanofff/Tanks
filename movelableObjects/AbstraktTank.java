@@ -9,7 +9,7 @@ import java.awt.image.ImageObserver;
 import java.util.*;
 import java.util.List;
 
-public abstract class AbstraktTank implements Tank{
+public abstract class AbstraktTank implements Tank, Runnable{
 
 	private int speed = 10;
 	private int x;
@@ -17,8 +17,6 @@ public abstract class AbstraktTank implements Tank{
 	private Direction direction;
 	protected BattleField bf;
 	protected Image[] images;
-
-	public List<Object> actions = new ArrayList<>();
 	private String quadrant = randomChoiseQuadrant();
 	private boolean destroyed;
 
@@ -26,12 +24,6 @@ public abstract class AbstraktTank implements Tank{
 	private int quadrantY;
 	private int quadrantXEnemy;
 	private int quadrantYEnemy;
-	public final int quadrantSize  = 64;
-
-
-	private volatile int actionsFire;
-
-
 
 	public AbstraktTank(BattleField bf) {
 		this(bf, 0, 0, Direction.DOWN);
@@ -48,9 +40,18 @@ public abstract class AbstraktTank implements Tank{
 
 
 	}
+	@Override
+	public void run() {
+		while (!isDestroyed() || !bf.getDefender().isDestroyed()) {
+
+			sleep(300);
+			setUp();
+		}
+	}
+
 
 	public void startThread() {
-
+         new Thread(bf.getAgressor()).start();
 	}
 
 	public AbstraktTank(BattleField bf, int x, int y, Direction direction) {
@@ -86,11 +87,6 @@ public abstract class AbstraktTank implements Tank{
 		int separator = coord.indexOf("_");
 		y = Integer.parseInt(coord.substring(0, separator));
 		x = Integer.parseInt(coord.substring(separator + 1));
-	}
-
-	@Override
-	public void run() {
-
 	}
 
 	public int getSpeed() {
@@ -195,6 +191,13 @@ public abstract class AbstraktTank implements Tank{
 			quadrantOpponent = bf.getQuadrant(bf.getDefender().getX(), bf.getDefender().getY());
 		}
 		return quadrantOpponent;
+	}
+	public void sleep(long timeout) {
+		try {
+			Thread.currentThread().sleep(timeout);
+		} catch (InterruptedException ex) {
+
+		}
 	}
 
 	public Drawable checkNextQuadrant(Direction direction, int step) {
@@ -314,7 +317,7 @@ public abstract class AbstraktTank implements Tank{
 	}
 	public Stack choseShortestWay (String enemyCoord) {
 		String myCoord = bf.getQuadrant(getX(), getY());
-		PathWay pathWay = new PathWay(bf.battleField, myCoord, enemyCoord);
+		PathWay pathWay = new PathWay(bf.getFieldObjects(), myCoord, enemyCoord);
 		return pathWay.getPath();
 	}
 
@@ -339,14 +342,11 @@ public abstract class AbstraktTank implements Tank{
 
 	private Action checkNextQuadrant(int coordY, int coordX) {
 		if (bf.scanQuadrant(coordY, coordX) instanceof Empty) {
-//			actionsFire=0;
-            return Action.MOVE;
-        } else if(actionsFire==0){
-//			actionsFire=1;
-            return Action.FIRE;
-        }else {
 
-			return Action.NONE;}
+            return Action.MOVE;
+        } else {
+            return Action.FIRE;}
+
 	}
 
 	private Direction choseDirection(int coordY, int coordX, int myX, int myY) {

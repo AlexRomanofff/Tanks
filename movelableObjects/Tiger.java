@@ -8,14 +8,10 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 
 public class Tiger extends AbstraktTank {
 	
 	private int armor=1;
-	private Direction []directions = new Direction[4];
 	Stack<String> way;
 
 	
@@ -54,23 +50,8 @@ public class Tiger extends AbstraktTank {
 	public void setUp() {
 		bf.aggressorActions.add(getAction());
 	}
-	@Override
-	public void startThread () {
-		Thread tigerThread = new Thread(this);
-		tigerThread.start();
 
-	}
 
-	@Override
-	public void run() {
-		while(!isDestroyed()||!bf.getDefender().isDestroyed()) {
-
-			if(bf.aggressorActions.size()==0) {
-				setUp();
-				System.out.println(bf.aggressorActions.toString());
-			}
-		}
-	}
 
 	private void setImages () {
 		images = new Image[4];
@@ -93,7 +74,7 @@ public class Tiger extends AbstraktTank {
 		} else {
 
 			way = choseShortestWay(getOpponent());
-			return moveToNextQuadrant(way.peek());
+			return moveToNextQuadrant(way.pop());
 
 		}
 	}

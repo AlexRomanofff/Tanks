@@ -5,16 +5,20 @@ import fieldObjects.BattleField;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-public class T34 extends AbstraktTank implements Runnable{
+public class T34 extends AbstraktTank{
 
 
     public T34(BattleField bf) {
         super(bf);
         setImages();
-
     }
 
 
@@ -36,75 +40,14 @@ public class T34 extends AbstraktTank implements Runnable{
         }
     }
 
+
     public void setUp() {
-//        System.out.println("T34:"+ getAction().toString());
-//        return getAction();
-//        return Action.FIRE;
-        bf.defenderActions.add(getAction());
     }
-        @Override
-        public void run() {
-            while(!isDestroyed()||!bf.getDefender().isDestroyed()) {
 
-                if(bf.defenderActions.size()==0) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-
-                    }
-                    setUp();
-                    System.out.println(bf.defenderActions.toString());
-
-                }
-            }
-        }
-        @Override
-        public void startThread () {
-            Thread t34Thread = new Thread(this);
-            t34Thread.start();
-
-        }
 
     @Override
     public Action getAction() {
-
-        if (checkPresenceTankOnLine(getOpponent())) {
-            return setNecessaryDirection();
-        } else {
-            Direction dir = getDirection();
-            return getActionForT34(dir);
-        }
-    }
-
-    private Action getActionForT34(Direction dir) {
-        if (getY() == 8 * quadrantSize) {
-            if (!(dir == Direction.UP)) {
-                dir = Direction.UP;
-                return setActionDirection(dir);
-            } else {
-                return Action.MOVE;
-            }
-        } else {
-            if (dir == Direction.UP) {
-                if (getX() < 4 * quadrantSize) {
-                    dir = Direction.RIGHT;
-                } else {
-                    dir = Direction.LEFT;
-                }
-                return setActionDirection(dir);
-            } else {
-                if (getX()==5*quadrantSize && (dir==Direction.RIGHT)) {
-                    dir = Direction.DOWN;
-                return setActionDirection(dir);}
-                else if (getX()==3*quadrantSize && (dir==Direction.LEFT)) {
-                    dir= Direction.DOWN;
-                    return setActionDirection(dir);
-                } else {
-
-                return Action.MOVE; }
-            }
-        }
-
+        return null;
     }
 
 }
