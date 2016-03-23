@@ -51,6 +51,8 @@ public class Bullet implements Destroyable, Drawable {
 	}
 
 	public void destroy() {
+		this.x=-100;
+		this.y = -100;
 		isDestroyed = true;
 	}
 	public void draw (Graphics g) {

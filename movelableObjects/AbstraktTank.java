@@ -183,7 +183,7 @@ public abstract class AbstraktTank implements Tank, Runnable{
 		}
 	}
 	public void setUp() {
-
+		bf.aggressorActions.add(getAction());
 	}
 	public String getOpponent () {
 		String quadrantOpponent = bf.getQuadrant(bf.getAgressor().getX(), bf.getAgressor().getY());

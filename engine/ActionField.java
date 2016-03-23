@@ -23,8 +23,11 @@ public class  ActionField extends JPanel {
 	private int agressorID;
 	private JFrame frame;
 	private File file;
-	private List<Action> recordingActions;
-	private List<Action> readingActions;
+	private Long timeOfBeginning;
+	private Map<Long, Action> aggressorActions;
+	private Map<Long, Action> defenderActions;
+	private boolean isRecord;
+
 
 	public ActionField() {
 		frame = new JFrame("BATTLE FIELD");
@@ -32,8 +35,8 @@ public class  ActionField extends JPanel {
 		bullet = new Bullet(-100, -100, Direction.UP, battleField.getAgressor());
 		bulletAgressor = new Bullet(-100, -100, Direction.LEFT, battleField.getAgressor());
 
-        recordingActions = new ArrayList<>();
-        readingActions = new ArrayList<>();
+		aggressorActions = new TreeMap<>();
+		defenderActions = new TreeMap<>();
 		bulletAgressor.destroy();
 		bullet.destroy();
 
@@ -48,10 +51,7 @@ public class  ActionField extends JPanel {
 		frame.setVisible(true);
 
 
-		file = new File("recordAction.txt");
-		if(file.exists()) {
-			createRecordFile();
-		}
+
 	}
 
 	private void createRecordFile() {
@@ -65,9 +65,14 @@ public class  ActionField extends JPanel {
 
 
 	void runTheGame() {
+		file = new File("recordActions.txt");
+		if(file.exists()) {
+			createRecordFile();
+		}
 		frame.addKeyListener(createKeyListener());
 		frame.setFocusable(true);
 		frame.requestFocusInWindow();
+		timeOfBeginning = System.currentTimeMillis();
 
 		Thread graphicThread = new Thread(new Runnable() {
 			@Override
@@ -96,7 +101,7 @@ public class  ActionField extends JPanel {
 
 		graphicThread.start();
 		agressorThread().start();
-		defenderThread();
+		defenderThread().start();
 
 	}
 //			Thread.sleep(10);
@@ -118,16 +123,22 @@ public class  ActionField extends JPanel {
 
 
 	private Thread agressorThread() {
+		Thread threadAgressor;
 
-		Thread threadAgressor = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (isNotDestroy()) {
-					sleep(50);
-					if (battleField.aggressorActions.size()>0) {
+		if (isRecord) {
+			threadAgressor = ActionsFromRecords(battleField.getAgressor(), aggressorActions);
+		} else {
+
+			threadAgressor = new Thread(new Runnable() {
+				@Override
+				public void run() {
+
+					while (isNotDestroy()) {
+						sleep(16);
+						if (battleField.aggressorActions.size() > 0) {
 							try {
 
-								for (int i=0; i<battleField.aggressorActions.size()-1; i++){
+								for (int i = 0; i < battleField.aggressorActions.size() - 1; i++) {
 									battleField.aggressorActions.remove();
 								}
 								Action a = battleField.aggressorActions.poll();
@@ -136,39 +147,39 @@ public class  ActionField extends JPanel {
 
 							} catch (InterruptedException ex) {
 								//ignore
+							}
 						}
 					}
 				}
-			}
-		});
+			});
+		}
 		return threadAgressor;
 	}
 
-	private void defenderThread() {
+	private Thread defenderThread() {
+		if (isRecord) {
+			return ActionsFromRecords(battleField.getDefender(), defenderActions);
+		} else {
+			return new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while (isNotDestroy()) {
+						sleep(16);
+						if (battleField.defenderActions.size() > 0) {
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (isNotDestroy()) {
-                    sleep(16);
-					if (battleField.defenderActions.size() > 0) {
+							try {
 
-						try {
+								Action a = battleField.defenderActions.poll();
+								processAction(a, battleField.getDefender());
 
-							Action a = battleField.defenderActions.poll();
-							processAction(a, battleField.getDefender());
-
-						} catch (InterruptedException ex) {
-                           //ignore
+							} catch (InterruptedException ex) {
+								//ignore
+							}
 						}
 					}
 				}
-			}
-		}).start();
-
-
-
-
+			});
+		}
 	}
 
 	private KeyListener createKeyListener() {
@@ -244,7 +255,7 @@ public class  ActionField extends JPanel {
 
 
 	private void processAction(Action a, Tank t) throws InterruptedException {
-
+		recordAction(t,a);
 		if (a == Action.MOVE) {
 			processMove(t);
 
@@ -278,6 +289,12 @@ public class  ActionField extends JPanel {
 		int separator = quadrantBullet.indexOf("_");
 		int y = Integer.parseInt(quadrantBullet.substring(0, separator));
 		int x = Integer.parseInt(quadrantBullet.substring(separator + 1));
+		Bullet enemyBullet = bulletAgressor;
+		if (bullet.getTank()==battleField.getAgressor()) {
+			enemyBullet = this.bullet;
+		}
+
+
 
 		if ((y >= 0 && y < 9) && (x >= 0 && x < 9)) {
 
@@ -314,6 +331,12 @@ public class  ActionField extends JPanel {
 					return true;
 				}
 			}
+
+			 if ((bullet.getX()==enemyBullet.getX()&& (bullet.getY()==enemyBullet.getY()))) {
+                  enemyBullet.destroy();
+				 return true;
+			}
+
 		}return  false;
 
 	}
@@ -321,6 +344,7 @@ public class  ActionField extends JPanel {
 	private String tankQuadrant (Tank tank) {
 		return battleField.getQuadrant(tank.getX(),tank.getY());
 	}
+
 
 
 	private boolean checkInterceptionInQuadrant (String quadrantBullet, String destroyableObj) {
@@ -332,6 +356,7 @@ public class  ActionField extends JPanel {
 		int bulletY = Integer.parseInt(quadrantBullet.substring(0,1));
 		int tankX = Integer.parseInt(destroyableObj.substring(2));
 		int tankY = Integer.parseInt(destroyableObj.substring(0,1));
+
 		return ((bulletX == tankX)&&(bulletY==tankY));
 
 	}
@@ -339,7 +364,7 @@ public class  ActionField extends JPanel {
 	private void processFire(Bullet bullet) {
 
 		if (bullet.getTank() == battleField.getAgressor()) {
-			if (this.bulletAgressor.isDestroyed()) {
+			if (bulletAgressor.isDestroyed()) {
 				bulletAgressor = bullet;
 				bulletAgressorThread(bullet).start();
 			}
@@ -377,8 +402,6 @@ public class  ActionField extends JPanel {
 
 				if (processInterception(bullet)) {
 					bullet.destroy();
-					if (bullet.isDestroyed())
-
 
 					break;
 				}
@@ -396,7 +419,6 @@ public class  ActionField extends JPanel {
 
             bullet.updateX(step);
         }
-//		repaint();
 
 		sleep(bullet.getSpeed());
 	}
@@ -450,7 +472,6 @@ public class  ActionField extends JPanel {
 		while (covered < 64) {
 
 			tank.updateY(step);
-//			repaint();
 			Thread.sleep(tank.getSpeed());
 
 			covered += 1;
@@ -462,7 +483,6 @@ public class  ActionField extends JPanel {
 
 		while (covered < 64) {
 			tank.updateX(step);
-//			repaint();
 				Thread.sleep(tank.getSpeed());
 
 			covered += 1;
@@ -511,10 +531,6 @@ public class  ActionField extends JPanel {
 				|| (tank.getX() >= 512 && direction == Direction.RIGHT)
 				|| (tank.getX() <= 0 && direction == Direction.LEFT))
 				|| !(checkNextQuadrant(tank) instanceof Empty);
-	}
-		
-	public void processTurn(){
-//		repaint();
 	}
 
 	
@@ -567,7 +583,7 @@ public class  ActionField extends JPanel {
         ok.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                isRecord = false;
 				frame.getContentPane().removeAll();
 				battleField = new BattleField(agressorID);
 				frame.getContentPane().add(ActionField.this);
@@ -634,15 +650,15 @@ public class  ActionField extends JPanel {
         replayGame.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				recordAction();
+
 				readActions();
-				System.out.println(readingActions);
-				System.out.println(recordingActions);
-				recordingActions.clear();
+                isRecord = true;
 				frame.getContentPane().removeAll();
+				battleField = new BattleField(agressorID);
 				frame.getContentPane().add(ActionField.this);
 				frame.setVisible(true);
 				frame.pack();
+				runTheGame();
 
 			}
 		});
@@ -655,47 +671,86 @@ public class  ActionField extends JPanel {
             agressorID = Integer.parseInt(e.getActionCommand());
 		}
     }
-	private void recordAction () {
+	private void recordAction (Tank t, Action a) {
 
 		try {
-			createRecordFile();
-			FileOutputStream fos = new FileOutputStream("record_Actions");
-			BufferedOutputStream bos = new BufferedOutputStream(fos);
+            FileWriter fr = new FileWriter("recordActions.txt",true);
+			BufferedWriter br = new BufferedWriter(fr);
 
-			ObjectOutputStream os = new ObjectOutputStream(bos);
-			for (Action action: recordingActions) {
-				os.writeObject(action);
+			String kindTank;
+			if(t==battleField.getAgressor()) {
+				kindTank = "A";
+			} else {
+				kindTank = "D";
 			}
-			os.flush();
-			os.close();
+			Long currentTime = System.currentTimeMillis()-timeOfBeginning;
+			String record = (kindTank+":"+a.toString()+"-"+currentTime);
+            br.write(record);
+			br.newLine();
+			br.close();
 
 		} catch (IOException iox) {
 			iox.printStackTrace();
 		}
 
 	}
+
 	private void readActions() {
 
 		try {
-			FileInputStream fis = new FileInputStream("record_Actions");
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			ObjectInputStream ois = new ObjectInputStream(bis);
 
-			try {while (bis.available()>0) {
-				Action action = (Action) ois.readObject();
-				readingActions.add(action);
-			  }
+			FileReader fr = new FileReader("recordActions.txt");
+			BufferedReader br = new BufferedReader(fr);
+			String str;
 
-				ois.close();
+			while ((str = br.readLine()) != null) {
 
-			}catch (ClassNotFoundException ex1) {
-                 ex1.printStackTrace();
+				Long time = Long.valueOf(str.substring(str.indexOf('-') + 1));
+				Action a = Action.valueOf(str.substring(str.indexOf(':') + 1, str.indexOf('-')));
+				if (str.substring(0, 1).equals("A")) {
+					aggressorActions.put(time, a);
+				} else {
+					defenderActions.put(time, a);
+				}
 			}
 
-		} catch (IOException ex){
-              ex.printStackTrace();
+			br.close();
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 	}
+
+	private Thread ActionsFromRecords (Tank t, Map<Long, Action> map) {
+
+
+		List<Long> timer = new ArrayList<>();
+		for (Map.Entry<Long, Action> entry : map.entrySet()) {
+			timer.add(entry.getKey());
+		}
+		return new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				while (!map.isEmpty()) {
+					Long time = System.currentTimeMillis();
+					if (timer.get(0)-(time-timeOfBeginning)>0)
+					sleep(timer.get(0)-(time-timeOfBeginning));
+
+					try {
+						processAction(map.get(timer.get(0)), t);
+						map.remove(timer.get(0));
+						timer.remove(0);
+
+					} catch (InterruptedException ex) {
+						//ignore
+					}
+
+					}
+			}
+		});
+	}
+
 }
 
 

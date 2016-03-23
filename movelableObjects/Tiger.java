@@ -10,17 +10,17 @@ import java.io.IOException;
 import java.util.Stack;
 
 public class Tiger extends AbstraktTank {
-	
+
 	private int armor=1;
 	Stack<String> way;
 
-	
+
 	public Tiger  (BattleField bf) {
 		super(bf);
 		setImages();
 
 	}
-	
+
 	public Tiger (BattleField bf, int x, int y, Direction direction) {
 		super(bf, x, y, direction);
 		setImages();
@@ -38,14 +38,14 @@ public class Tiger extends AbstraktTank {
 		this.armor = armor;
 	}
 
-   @Override
-   public void destroy() {
-	   if (getArmor() == 1) {
-		   setArmor(0);
-	   } else {
-		   super.destroy();
-	   }
-   }
+	@Override
+	public void destroy() {
+		if (getArmor() == 1) {
+			setArmor(0);
+		} else {
+			super.destroy();
+		}
+	}
 
 	public void setUp() {
 		bf.aggressorActions.add(getAction());

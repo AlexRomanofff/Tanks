@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
 
-public class BT7 extends AbstraktTank implements Runnable{
+public class BT7 extends AbstraktTank {
 
 	private final String EAGLE_QUADRANT = "8_4";
 	Stack<String> way;
@@ -27,20 +27,7 @@ public class BT7 extends AbstraktTank implements Runnable{
 	}
 
 
-	public void setUp() {
 
-		bf.aggressorActions.add(getAction());
-
-	}
-
-	@Override
-	public void run() {
-		while (!isDestroyed() || !bf.getDefender().isDestroyed()) {
-
-			sleep(300);
-			setUp();
-		}
-	}
 
 	@Override
 	public Action getAction() {
